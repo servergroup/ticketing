@@ -1,0 +1,162 @@
+/* ====== Layout generale ====== */
+body.login-page {
+    background: #f4f6f9;
+    font-family: "Segoe UI", Roboto, Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+/* ====== Contenitore Login ====== */
+.login-box {
+    width: 420px;
+    max-width: 92%; /* Mobile friendly */
+    margin: 60px auto;
+}
+
+/* ====== Card ====== */
+.card {
+    border-radius: 12px;
+    border: 1px solid #e1e1e1;
+    box-shadow: 0 4px 18px rgba(0,0,0,0.08);
+    background: #ffffff;
+}
+
+.login-card-body {
+    padding: 30px;
+}
+
+/* ====== Titolo / Messaggio ====== */
+.login-box-msg {
+    font-size: 18px;
+    font-weight: 600;
+    color: #2c3e50;
+    text-align: center;
+    margin-bottom: 25px;
+}
+
+/* ====== Input ====== */
+.input-group .form-control {
+    border-radius: 6px 0 0 6px;
+    border: 1px solid #cfcfcf;
+    padding: 10px;
+    font-size: 15px;
+    width: 100%;
+}
+
+.input-group-text {
+    background: #f0f0f0;
+    border: 1px solid #cfcfcf;
+    border-left: none;
+    border-radius: 0 6px 6px 0;
+}
+
+.form-control:focus {
+    border-color: #0066cc;
+    box-shadow: 0 0 0 3px rgba(0,102,204,0.15);
+}
+
+/* ====== Checkbox ====== */
+.icheck-primary input[type="checkbox"] + label {
+    font-size: 14px;
+    color: #2c3e50;
+}
+
+/* ====== Pulsante Login ====== */
+.btn-primary {
+    background-color: #0066cc;
+    border-color: #005bb5;
+    padding: 10px 18px;
+    font-size: 15px;
+    border-radius: 6px;
+    width: 100%;
+    transition: all 0.25s ease-in-out;
+}
+
+.btn-primary:hover {
+    background-color: #005bb5;
+    border-color: #004f9e;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 14px rgba(0, 102, 204, 0.25);
+}
+
+/* ====== Link ====== */
+.login-card-body a {
+    color: #0066cc;
+    font-weight: 500;
+}
+
+.login-card-body a:hover {
+    text-decoration: underline;
+}
+
+/* ====== Spaziature ====== */
+.mb-1, .mb-0 {
+    margin-top: 15px;
+    text-align: center;
+}
+
+/* ============================================
+   RESPONSIVE DESIGN
+   ============================================ */
+
+/* Tablet e schermi medi */
+@media (max-width: 768px) {
+    .login-box {
+        margin: 40px auto;
+    }
+
+    .login-card-body {
+        padding: 25px;
+    }
+
+    .login-box-msg {
+        font-size: 17px;
+    }
+}
+
+/* Smartphone */
+@media (max-width: 480px) {
+    .login-box {
+        margin: 30px auto;
+        max-width: 94%;
+    }
+
+    .login-card-body {
+        padding: 20px;
+    }
+
+    .login-box-msg {
+        font-size: 16px;
+        margin-bottom: 20px;
+    }
+
+    .btn-primary {
+        font-size: 14px;
+        padding: 10px;
+    }
+
+    .input-group .form-control {
+        font-size: 14px;
+        padding: 9px;
+    }
+
+    .input-group-text {
+        padding: 8px 10px;
+    }
+}
+
+/* Schermi molto piccoli (vecchi smartphone) */
+@media (max-width: 360px) {
+    .login-card-body {
+        padding: 15px;
+    }
+
+    .login-box-msg {
+        font-size: 15px;
+    }
+
+    .btn-primary {
+        font-size: 14px;
+        padding: 9px;
+    }
+}
