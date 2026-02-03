@@ -86,14 +86,15 @@ if (Yii::$app->session->hasFlash('error')) {
 
     <?php $form = ActiveForm::begin(); ?>
 
-        <?= $form->field($user, 'email')->textInput([
+        <?= $form->field($user, 'email')->hiddenInput([
             'placeholder' => 'Email attuale',
             'value' =>Yii::$app->user->identity->username,
+            
             'readonly' => true,
             'class' => 'ds-input'
         ])->label('Email attuale') ?>
 
-        <?= $form->field($user, 'email')->input('email', [
+        <?= $form->field($user, 'email')->passwordInput([
             'placeholder' => 'Nuova email',
             'class' => 'ds-input'
         ])->label('Nuova email') ?>

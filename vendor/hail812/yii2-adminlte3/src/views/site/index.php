@@ -3,23 +3,25 @@ use app\models\Ticket;
 use yii\helpers\Html;
 use app\models\User;
 use app\models\Assegnazioni;
+
+/** @var app\models\User $user */
+
+/** @var app\models\Ticket $ticket */
+
+/** @var app\models\Ticket $ultimoTicket */
 $this->params['breadcrumbs'] = [['label' => $this->title]];
 ?>
 
 <?php
-$user=User::findOne(['username'=>Yii::$app->user->identity->username]);
-// Ticket dell’utente
-$ticket = Ticket::find()->where(['id_cliente' => Yii::$app->user->identity->id])->all();
 
-// Conteggio corretto dei ticket dell’utente
-$countTicket = Ticket::find()->where(['id_cliente' => Yii::$app->user->identity->id])->count();
 
-// Ultimo ticket dell’utente
-$ultimoTicket = Ticket::find()
-    ->where(['id_cliente' => Yii::$app->user->identity->id])
-    ->orderBy(['data_invio' => SORT_DESC])
-    ->one();
-
+    if(!$user->approvazione){
+        ?>
+        <script>
+            window.location.href='site/attesa';
+        </script>
+        <?php
+    }
 // Stato da mostrare
 $stato = ($countTicket == 0) ? 'Nessun ticket al momento' : $ultimoTicket->stato;
 ?>

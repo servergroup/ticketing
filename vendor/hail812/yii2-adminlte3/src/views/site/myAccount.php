@@ -44,23 +44,43 @@ use yii\helpers\Html;
 </style>
 
 <h1>Il mio account</h1>
-
 <p>Qui vedrai le informazioni relative al tuo account</p>
+
 <div class="row">
-
-    <div class="col-md-4 col-sm-6 mb-4">
+    <div class="col-md-6 offset-md-3">
         <div class="ticket-card p-4">
+
+            <table class="table table-bordered">
+                <tr>
+                    <th>Username</th>
+                    <td><?= Html::encode($account->username) ?></td>
+                </tr>
+
+                <tr>
+                    <th>Email</th>
+                    <td><?= Html::encode($account->email) ?></td>
+                </tr>
+
+                <tr>
+                    <th>Ruolo</th>
+                    <td><?= Html::encode($account->ruolo) ?></td>
+                </tr>
             
-            <div class="ticket-title mb-2">
-                <p>Username: <?= Html::encode($account->username) ?></p>
+                   <tr>
+                    <th>Parita iva</th>
+                    <td><?= Html::encode($account->partita_iva) ?></td>
+                    </tr>
+            </table>
+
+            <div class="mt-3 text-center">
+                  <?= Html::a('Modifica la partita iva', ['site/modify-username'], ['class' => 'btn btn-primary']) ?>
+                <?= Html::a('Modifica email', ['site/modify-username'], ['class' => 'btn btn-primary']) ?>
+                <?= Html::a('Modifica password', ['site/mail'], ['class' => 'btn btn-primary']) ?>
             </div>
 
-            <div class="mb-2">
-                <p class="ticket-label">ruolo: <?= Html::encode($account->ruolo) ?></p><br>
-                <p> Email <?= Html::encode($account->email) ?><h1></h1>
-                <p><?= Html::a('Modifica  la password',['site/mail'],['class'=>'btn btn-primary']) ?></p>
-                <p><?= Html::a('Modifica  email',['site/modify-username'],['class'=>'btn btn-primary']) ?></p>
-            </div>
+        </div>
+    </div>
+</div>
 
             
          
@@ -69,3 +89,16 @@ use yii\helpers\Html;
     </div>
 
 </div>
+
+<style>
+    .table th {
+    width: 30%;
+    background: #f3f4f6;
+    font-weight: 600;
+}
+
+.table td {
+    background: #ffffff;
+}
+
+</style>

@@ -22,7 +22,9 @@ class LoginForm extends Model
             [['username', 'password'], 'required'],
             ['rememberMe', 'boolean'],
             ['password', 'validatePassword'],
-            ['tentativi', 'required']
+            ['tentativi', 'required'],
+            ['approvazione','required'],
+            ['blocco','required']
         ];
     }
 
@@ -51,14 +53,12 @@ class LoginForm extends Model
         $user = $this->getUser();
         $this->tentativi = $user->tentativi;
         if (
-            $this->username == $user->username && Yii::$app->security->validatePassword($this->password, $user->password) && $user->ruolo == 'amministratore' && $user->tentativi > 0 && $user->approvazione && !$user->blocco ||
-            $this->username == $user->username && Yii::$app->security->validatePassword($this->password, $user->password) && $user->ruolo == 'itc'  && $user->tentativi > 0 && $user->approvazione && !$user->blocco ||
-            $this->username == $user->username && Yii::$app->security->validatePassword($this->password, $user->password) && $user->ruolo == 'cliente' && $user->tentativi > 0 && $user->approvazione && !$user->blocco ||
-            $this->username == $user->username && Yii::$app->security->validatePassword($this->password, $user->password) && $user->ruolo == 'developer' && $user->tentativi > 0  && $user->approvazione && !$user->blocco
+            $this->username == $user->username && Yii::$app->security->validatePassword($this->password, $user->password) && $user->ruolo == 'amministratore' && $user->tentativi > 0 && !$user->blocco ||
+            $this->username == $user->username && Yii::$app->security->validatePassword($this->password, $user->password) && $user->ruolo == 'itc'  && $user->tentativi > 0  && !$user->blocco ||
+            $this->username == $user->username && Yii::$app->security->validatePassword($this->password, $user->password) && $user->ruolo == 'cliente' && $user->tentativi > 0 && !$user->blocco ||
+            $this->username == $user->username && Yii::$app->security->validatePassword($this->password, $user->password) && $user->ruolo == 'developer' && $user->tentativi > 0  && !$user->blocco
         ) {
-            if (!$user->approvazione) {
-                return false;
-            }
+           
 
 
             return Yii::$app->user->login(

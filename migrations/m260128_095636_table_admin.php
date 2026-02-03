@@ -22,7 +22,8 @@ class m260128_095636_table_admin extends Migration
                 'ruolo'=>$this->string(),
                 'tentativi'=>$this->integer(),
                 'approvazione'=>$this->boolean(),
-                'blocco'=>$this->boolean()
+                'blocco'=>$this->boolean(),
+                'partita_iva'=>$this->string(),
             ]
         );
     }

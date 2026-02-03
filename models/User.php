@@ -10,15 +10,23 @@ class User extends ActiveRecord implements IdentityInterface
 {
     public static function tableName()
     {
-        return 'personale'; // la tua tabella
+        return 'personale';
     }
 
     public function rules()
     {
         return [
             [['nome','cognome','username','password','email','ruolo','auth_key','access_token'], 'required'],
-            ['username','unique']
+            ['username','unique'],
+            [['approvazione','blocco'], 'boolean'],
+            ['tentativi', 'integer'],
+            ['partita_iva','string']
         ];
+    }
+
+    public function isApproved()
+    {
+        return (bool) $this->approvazione;
     }
 
     public static function findIdentity($id)
@@ -38,12 +46,12 @@ class User extends ActiveRecord implements IdentityInterface
 
     public function getId()
     {
-        return $this->id; // CORRETTO
+        return $this->id;
     }
 
     public function getAuthKey()
     {
-        return $this->auth_key; // CORRETTO
+        return $this->auth_key;
     }
 
     public function validateAuthKey($authKey)
@@ -55,4 +63,7 @@ class User extends ActiveRecord implements IdentityInterface
     {
         return Yii::$app->security->validatePassword($password, $this->password);
     }
+
+ 
+
 }

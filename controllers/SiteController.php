@@ -12,6 +12,7 @@ use app\models\ContactForm;
 use app\models\userService;
 use app\eccezioni\existUserException;
 use app\models\User;
+use app\models\Ticket;
 use Exception;
 
 class SiteController extends Controller
@@ -68,11 +69,26 @@ class SiteController extends Controller
 
 
 
+public function actionIndex()
+{
+  
+$user=User::findOne(['username'=>Yii::$app->user->identity->username]);
+// Ticket dell’utente
+$ticket = Ticket::find()->where(['id_cliente' => Yii::$app->user->identity->id])->all();
 
-    public function actionIndex()
-    {
-        return $this->render('index');
-    }
+// Conteggio corretto dei ticket dell’utente
+$countTicket = Ticket::find()->where(['id_cliente' => Yii::$app->user->identity->id])->count();
+
+// Ultimo ticket dell’utente
+$ultimoTicket = Ticket::find()
+    ->where(['id_cliente' => Yii::$app->user->identity->id])
+    ->orderBy(['data_invio' => SORT_DESC])
+    ->one();
+
+    // Se tutto ok → mostra index
+    return $this->render('index',['user'=>$user,'ticket'=>$ticket,'countTicket'=>$countTicket,'ultimoTicket'=>$ultimoTicket]);
+}
+
 
     /**
      * Login action.
@@ -96,16 +112,18 @@ class SiteController extends Controller
                 return $this->render('login', ['model' => $model]);
             }
 
+        
             if ($model->login()) {
                 Yii::$app->session->setFlash('success', 'Accesso riuscito');
                 if (Yii::$app->user->identity->ruolo == 'amministratore') {
-                    return $this->goBack();
+                    return $this->redirect(['attesa']);
                 } else if (Yii::$app->user->identity->ruolo == 'developer') {
-                    return $this->goBack();
+                   
+                    return $this->redirect(['attesa']);
                 } else if (Yii::$app->user->identity->ruolo == 'itc') {
-                    return $this->goBack();
+                   return $this->redirect(['attesa']);
                 } else if (Yii::$app->user->identity->ruolo == 'cliente') {
-                    return $this->goBack();
+                    return $this->redirect(['attesa']);
                 }
                 //return $this->redirect(['index']);
             }else{
@@ -207,7 +225,14 @@ class SiteController extends Controller
 
     public function actionAttesa()
     {
-        return $this->render('approvated');
+      
+        $user=User::findOne(['username'=>Yii::$app->user->identity->username]);
+        if(!$user->approvazione){
+       return $this->render('approved');
+    }else{
+         return $this->render('index');
+    }
+
     }
     public function actionRegister()
     {
@@ -218,9 +243,8 @@ class SiteController extends Controller
             try {
                 if ($function->verifyUser($user->username, $user->email)) {
                     Yii::$app->session->setFlash('error', 'Utente già registrato');
-                }else if($user->approvazione){ 
-                    return $this->redirect(['attesa']);
-                }else if ($function->registerAdmin($user->nome, $user->cognome, $user->password, $user->email, $user->ruolo)) {
+                
+                }else if ($function->registerAdmin($user->nome, $user->cognome, $user->password, $user->email, $user->ruolo,$user->partita_iva)) {
                     Yii::$app->session->setFlash('success', 'Registrazione avvenuta correttamente');
                     return $this->redirect(['login']);
                 } else {
@@ -304,5 +328,24 @@ class SiteController extends Controller
         $function->approva($email);
     }
 
+    public function actionModifyIva()
+    {
+        $user=new User();
+        $function=new userService();
+
+        if($user->load(Yii::$app->request->post()))
+            {
+                if($function->ModifyPartitaIva($user->partita_iva))
+                    {
+                        Yii::$app->session->setflash('success','Modifica della partita iva effettuata correttamente');
+                        return $this->redirect(['index']);
+                    }else{
+                         Yii::$app->session->setflash('success','Modifica della partita iva non effettuata correttamente');
+                         return $this->redirect(['index']);
+                    }
+
+
+            }
+    }
 
 }

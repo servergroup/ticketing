@@ -64,7 +64,7 @@ class userService extends Model
 
   
 
-    public function registerAdmin($nome, $cognome, $password, $email, $ruolo)
+    public function registerAdmin($nome, $cognome, $password, $email, $ruolo,$partita_iva)
     {
         $user = new User();
 
@@ -77,14 +77,29 @@ class userService extends Model
         $user->access_token = Yii::$app->security->generateRandomString();
         $user->ruolo = $ruolo;
         $user->tentativi=10;
-        $user->approvazione=false;
         $user->blocco=false;
-
+        $user->partita_iva=$partita_iva;
+        if($user->partita_iva!=null && $user->ruolo='cliente')
+            {
+                $user->approvazione=true;
+            }
         if ($user->save()) {
+
+        if(!$user->approvazione)
+            {
+        $cookie=new Cookie(
+            [
+                'name'=>'utente',
+                'value'=>$email,
+                'expire'=>time() + 600,
+            ]
+        );
+
+        Yii::$app->response->cookies->add($cookie);
+            }
             return true;
         } else {
-            var_dump($user->getErrors());
-            die;
+        
             return false;
         }
     }
@@ -180,6 +195,12 @@ public function resetLogin($username){
     return $user->save() ? true : false;
 }
 
+public function verifyApprovazione($username){
+    $user=User::findOne(['username'=>$username]);
+
+    return$user->approvazione;
+}
+
 public function approva($username)
 {
     $user=User::findOne(['username'=>$username]);
@@ -188,6 +209,20 @@ public function approva($username)
     $user->save();
 
 
+}
+
+public function ModifyPartitaIva($partitaIva)
+{
+    $user=User::findOne(['username'=>Yii::$app->user->identity->username]);
+
+    $user->partita_iva=$partitaIva;
+
+    if($user->save())
+        {
+            return true;
+        }else{
+            return false;
+        }
 }
 
 
