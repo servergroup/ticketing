@@ -1,7 +1,7 @@
 <footer class="main-footer">
-    <strong>&copy; Tutti i diritti sono riservati </strong>
-  
+    <strong>Copyright &copy; 2014-2021 <a href="https://adminlte.io">AdminLTE.io</a>.</strong>
+    All rights reserved.
     <div class="float-right d-none d-sm-inline-block">
-        <b> &copy; All rights reserved.</b>
+        <b>Version</b> 3.1.0
     </div>
 </footer>

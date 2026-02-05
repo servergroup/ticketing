@@ -18,7 +18,7 @@ class TicketController extends \yii\web\Controller
 
             $function->ticketScaduto();
             // Se esiste già un ticket simile
-            if ($function->verifyTicket($ticket->problema, $ticket->azienda)) {
+            if ($function->verifyTicket($ticket->problema)) {
                 Yii::$app->session->setFlash(
                     'success',
                     "È stato inviato un sollecito ai nostri esperti che, al più presto, si occuperanno del suo ticket. Ci scusiamo per il disagio."
@@ -31,9 +31,8 @@ class TicketController extends \yii\web\Controller
                 $ticket->problema,
                 $ticket->ambito,
                 $ticket->scadenza,
-                $ticket->azienda,
                 $ticket->priorita,
-                $ticket->recapito_telefonico
+
             )) {
                 Yii::$app->session->setFlash('success', 'Richiesta di ticketing inviata correttamente');
                 $function->ticketScaduto();
@@ -65,6 +64,7 @@ class TicketController extends \yii\web\Controller
             ->where(['id_cliente' => $cliente->id])
             ->all();
 
+
         $count = Ticket::find()
             ->where(['id_cliente' => $cliente->id])
             ->count();
@@ -76,6 +76,56 @@ class TicketController extends \yii\web\Controller
 
         return $this->render('myTicket', [
             'ticket' => $ticket
+        ]);
+    }
+
+    public function actionDeleteTicket($id)
+    {
+        $function = new ticketFunction();
+
+        if ($function->deleteTicket($id)) {
+            Yii::$app->session->setFlash('success', 'Eliminazione effettuata con successo');
+            return $this->redirect(['site/index']);
+        } else {
+            Yii::$app->session->setFlash('error', 'eliminazione fallita a causa di un problema');
+            return $this->redirect(['site/index']);
+        }
+    }
+
+    public function actionRitiro($codice_ticket)
+    {
+        $function = new ticketFunction();
+
+        if ($function->ritiraAssegnazione($codice_ticket)) {
+            Yii::$app->session->setflash('success', 'Ritiro effettuato correttamente');
+            return $this->redirect(['site/index']);
+        } else {
+            Yii::$app->session->setflash('else', 'Ritiro non effettuato correttamente');
+            return $this->redirect(['site/index']);
+        }
+    }
+
+    public function actionModifyTicket($codiceTicket)
+    {
+        $ticket = Ticket::findOne(['codice_ticket' => $codiceTicket]);
+        
+        $function = new ticketFunction();
+
+        if($ticket->load(Yii::$app->request->post()))
+            {
+        if ($function->modificaTicket($ticket->codice_ticket, $ticket->problema, $ticket->priorita)) {
+            Yii::$app->session->setFlash('success', 'modifica del ticket avvenuta con successo');
+            return $this->redirect(['site/index']);
+        } else {
+            Yii::$app->session->setFlash('error', 'Modifica del ticket non effettuata con successo');
+            return $this->redirect(['site/index']);
+        }
+
+            }
+        return $this->render('modifyTicket', [
+            'ticket' => $ticket,
+           
+
         ]);
     }
 }

@@ -17,10 +17,9 @@ class m260128_144050_table_ticket extends Migration
             'stato'=>$this->string(),
             'scadenza'=>$this->date(),
             'data_invio'=>$this->dateTime(),
-            'azienda'=>$this->string(),
             'id_cliente'=>$this->integer(),
-            'priorita'=>$this->string(),
-            'recapito_telefonico'=>$this->string(),
+            'priorita'=>$this->string()
+            
          
             
         ]);

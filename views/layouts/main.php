@@ -1,10 +1,12 @@
 <?php
 use hail812\adminlte3\assets\AdminLteAsset;
 use yii\helpers\Html;
-use yii\helpers\Url;
+use yii\web\View;
+use hail812\adminlte3\assets\FontAwesomeAsset;
+FontAwesomeAsset::register($this);
 
 $asset = AdminLteAsset::register($this);
-$assetDir = $asset->baseUrl; // necessario per logo e immagini
+$assetDir = $asset->baseUrl;
 
 $this->beginPage();
 ?>
@@ -15,51 +17,70 @@ $this->beginPage();
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <?= Html::csrfMetaTags() ?>
     <title><?= Html::encode($this->title) ?></title>
-    
     <?php $this->head() ?>
 
-    <!-- SweetAlert2 -->
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.26.17/dist/sweetalert2.all.min.js"></script>
-    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.26.17/dist/sweetalert2.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <?php
+    // FLASH SUCCESS
+    if (Yii::$app->session->hasFlash('success')) {
+        $msg = Yii::$app->session->getFlash('success');
+        $this->registerJs("
+            Swal.fire({
+                icon: 'success',
+                title: " . json_encode($msg) . ",
+                confirmButtonText: 'OK'
+            });
+        ", View::POS_END);
+    }
+
+    // FLASH ERROR
+    if (Yii::$app->session->hasFlash('error')) {
+        $msg = Yii::$app->session->getFlash('error');
+        $this->registerJs("
+            Swal.fire({
+                icon: 'error',
+                title: " . json_encode($msg) . ",
+                confirmButtonText: 'OK'
+            });
+        ", View::POS_END);
+    }
+    ?>
 </head>
+
 <body class="hold-transition sidebar-mini layout-fixed">
 <?php $this->beginBody() ?>
 
 <div class="wrapper">
 
-    <!-- Navbar top -->
-          <?= $this->render('@vendor/hail812/yii2-adminlte3/src/views/layouts/navbar.php')?>
-    
+    <!-- NAVBAR MOBILE -->
+    <?php if (!Yii::$app->user->isGuest): ?>
+    <nav class="main-header navbar navbar-expand navbar-white navbar-light mobile-navbar">
+        <ul class="navbar-nav mobile-nav">
+            <li class="nav-item">
+                <a class="nav-link" data-widget="pushmenu" href="#">
+                    <img src="<?= Yii::getAlias('@web/img/menu.png') ?>" style="width:22px;">
+                </a>
             </li>
-            <li class="nav-item d-none d-sm-inline-block">
-                <a href="<?= Url::to(['/site/index']) ?>" class="nav-link">Home</a>
+            <li class="nav-item">
+                <span class="nav-link page-title"><?= Html::encode($this->title) ?></span>
             </li>
-        </ul>
-
-        <!-- Right navbar links -->
-        <ul class="navbar-nav ml-auto">
-            <?php if (!Yii::$app->user->isGuest): ?>
-                <li class="nav-item">
-                    <a class="nav-link" href="<?= Url::to(['site/logout']) ?>" data-method="post">
-                        Logout (<?= Yii::$app->user->identity->username ?>)
-                    </a>
-                </li>
-            <?php else: ?>
-                <li class="nav-item">
-                    <a class="nav-link" href="<?= Url::to(['site/login']) ?>">Login</a>
-                </li>
-            <?php endif; ?>
         </ul>
     </nav>
+    <?php endif; ?>
 
-    <!-- Sidebar -->
+    <!-- SIDEBAR -->
     <?php if (!Yii::$app->user->isGuest): ?>
-        <?= $this->render('@vendor/hail812/yii2-adminlte3/src/views/layouts/sidebar.php', [
+        <?= $this->render('@app/views/layouts/sidebar.php', [
+            'assetDir' => $assetDir
+        ]) ?>
+
+              <?= $this->render('@app/views/layouts/navbar.php', [
             'assetDir' => $assetDir
         ]) ?>
     <?php endif; ?>
 
-    <!-- Content Wrapper -->
+    <!-- CONTENT -->
     <div class="content-wrapper">
         <section class="content">
             <div class="container-fluid">
@@ -68,17 +89,52 @@ $this->beginPage();
         </section>
     </div>
 
-    <!-- Footer -->
+    <!-- FOOTER -->
     <footer class="main-footer">
-        <div class="float-right d-none d-sm-inline">
-            Version 1.0
-        </div>
         <strong>&copy; <?= date('Y') ?> Dataseed.</strong> All rights reserved.
     </footer>
 
-</div> <!-- /.wrapper -->
+</div>
 
 <?php $this->endBody() ?>
 </body>
 </html>
 <?php $this->endPage() ?>
+
+
+<style>
+/* Nascondi navbar su desktop */
+.mobile-navbar {
+    display: none;
+}
+
+/* Mostra navbar su mobile */
+@media (max-width: 768px) {
+    .mobile-navbar {
+        display: flex !important;
+        justify-content: space-between;
+        padding-left: 10px;
+    }
+
+    .mobile-nav {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .page-title {
+        font-weight: 600;
+        font-size: 16px;
+    }
+
+    /* Riduci larghezza sidebar su mobile */
+    .main-sidebar {
+        width: 220px !important;
+    }
+
+    /* Content più largo su mobile */
+    .content-wrapper {
+        margin-left: 0 !important;
+    }
+}
+</style>

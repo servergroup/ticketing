@@ -1,24 +1,15 @@
 <?php
 use yii\helpers\Html;
+use app\assets\LogAsset;
 use yii\web\View;
+
+$this->title = '';
+LogAsset::register($this);
 ?>
 
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.26.17/dist/sweetalert2.all.min.js"></script>
-    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.26.17/dist/sweetalert2.min.css" rel="stylesheet">
-        
-    <?php
-    if (Yii::$app->session->hasFlash('success')) {
-    $msg = Yii::$app->session->getFlash('success');
-    $this->registerJs("
-        Swal.fire({
-            icon: 'success',
-            title: " . json_encode($msg) . ",
-            confirmButtonText: 'OK'
-        });
-    ", View::POS_END);
-}
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-// FLASH ERROR
+<?php
 if (Yii::$app->session->hasFlash('error')) {
     $msg = Yii::$app->session->getFlash('error');
     $this->registerJs("
@@ -29,56 +20,153 @@ if (Yii::$app->session->hasFlash('error')) {
         });
     ", View::POS_END);
 }
-    ?>
-<div class="card">
-    <div class="card-body login-card-body">
-        <p class="login-box-msg">Sign in to start your session</p>
+?>
 
-        <?php $form = \yii\bootstrap4\ActiveForm::begin(['id' => 'login-form']) ?>
+<div class="login-box">
+    <div class="card">
+        <div class="login-card-body">
 
-        <?= $form->field($model,'username', [
-            'options' => ['class' => 'form-group has-feedback'],
-            'inputTemplate' => '{input}<div class="input-group-append"><div class="input-group-text"><span class="fas fa-envelope"></span></div></div>',
-            'template' => '{beginWrapper}{input}{error}{endWrapper}',
-            'wrapperOptions' => ['class' => 'input-group mb-3']
-        ])
-            ->label(false)
-            ->textInput(['placeholder' => $model->getAttributeLabel('username')]) ?>
+            <p class="login-box-msg">
+                <i class="fas fa-ticket-alt">Ticketing</i>
+            </p>
 
-        <?= $form->field($model, 'password', [
-            'options' => ['class' => 'form-group has-feedback'],
-            'inputTemplate' => '{input}<div class="input-group-append"><div class="input-group-text"><span class="fas fa-lock"></span></div></div>',
-            'template' => '{beginWrapper}{input}{error}{endWrapper}',
-            'wrapperOptions' => ['class' => 'input-group mb-3']
-        ])
-            ->label(false)
-            ->passwordInput(['placeholder' => $model->getAttributeLabel('password')]) ?>
+            <h1 class="text-center mb-4">Accedi</h1>
 
-        <div class="row">
-            <div class="col-8">
-                <?= $form->field($model, 'rememberMe')->checkbox([
-                    'template' => '<div class="icheck-primary">{input}{label}</div>',
-                    'labelOptions' => [
-                        'class' => ''
-                    ],
-                    'uncheck' => null
+            <?php $form = \yii\bootstrap4\ActiveForm::begin(['id' => 'login-form']) ?>
+
+            <!-- USERNAME -->
+            <?= $form->field($model, 'username', [
+                'template' => '{beginWrapper}{input}{icon}{error}{endWrapper}',
+                'wrapperOptions' => ['class' => 'input-group mb-3'],
+                'parts' => [
+                    '{icon}' => '
+                        <div class="input-group-append">
+                            <div class="input-group-text">
+                                <span class="fas fa-user"></span>
+                            </div>
+                        </div>'
+                ]
+            ])->label(false)->textInput(['placeholder' => 'Username']) ?>
+
+            <!-- PASSWORD -->
+            <?= $form->field($model, 'password', [
+                'template' => '{beginWrapper}{input}{icon}{error}{endWrapper}',
+                'wrapperOptions' => ['class' => 'input-group mb-3'],
+                'parts' => [
+                    '{icon}' => '
+                        <div class="input-group-append">
+                            <div class="input-group-text">
+                                <span class="fas fa-lock"></span>
+                            </div>
+                        </div>'
+                ]
+            ])->label(false)->passwordInput(['placeholder' => 'Password']) ?>
+
+            <div class="text-center mt-3">
+                <?= Html::submitButton('Accedi', [
+                    'class' => 'btn btn-primary btn-block'
                 ]) ?>
             </div>
-            <div class="col-4">
-                <?= Html::submitButton('Sign In', ['class' => 'btn btn-primary btn-block']) ?>
+
+            <div class="text-center mt-3">
+                <?= Html::a('Hai dimenticato la password?', ['site/mail']) ?>
             </div>
+
+            <div class="text-center mt-2">
+                <?= Html::a('Non sei registrato?', ['site/register']) ?>
+            </div>
+
+            <?php \yii\bootstrap4\ActiveForm::end(); ?>
+
         </div>
-
-        <?php \yii\bootstrap4\ActiveForm::end(); ?>
-
-        <!-- /.social-auth-links -->
-
-        <p class="mb-1">
-            <a href="admin/recupero-password">Password dimenticata</a>
-        </p>
-        <p class="mb-0">
-            <a href="admin/register-operator" class="text-center">Registrati</a>
-        </p>
     </div>
-    <!-- /.login-card-body -->
 </div>
+
+<style>
+body.login-page {
+    background: #f4f6f9;
+    font-family: "Segoe UI", Roboto, Arial, sans-serif;
+}
+
+/* Box login */
+.login-box {
+    width: 420px;
+    max-width: 92%;
+    margin: 60px auto;
+}
+
+/* Card */
+.card {
+    border-radius: 12px;
+    border: 1px solid #e1e1e1;
+    box-shadow: 0 4px 18px rgba(0,0,0,0.08);
+    background: #ffffff;
+}
+
+.login-card-body {
+    padding: 30px;
+}
+
+/* Icona sopra */
+.login-box-msg {
+    font-size: 22px;
+    color: #2c3e50;
+    text-align: center;
+}
+
+/* Input */
+.input-group .form-control {
+    border-radius: 6px 0 0 6px;
+    border: 1px solid #cfcfcf;
+    padding: 10px;
+    font-size: 15px;
+}
+
+.input-group-text {
+    background: #f0f0f0;
+    border: 1px solid #cfcfcf;
+    border-left: none;
+    border-radius: 0 6px 6px 0;
+}
+
+/* Rimuove icone di validazione Bootstrap */
+.form-control.is-valid,
+.form-control.is-invalid {
+    background-image: none !important;
+}
+
+/* Pulsante */
+.btn-primary {
+    background-color: #0066cc;
+    border-color: #005bb5;
+    padding: 10px 18px;
+    font-size: 15px;
+    border-radius: 6px;
+    transition: 0.25s;
+}
+
+.btn-primary:hover {
+    background-color: #005bb5;
+    border-color: #004f9e;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 14px rgba(0, 102, 204, 0.25);
+    
+}
+
+/* Link */
+.login-card-body a {
+    color: #0066cc;
+    font-weight: 500;
+}
+
+.login-card-body a:hover {
+    text-decoration: underline;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+    .login-card-body {
+        padding: 20px;
+    }
+}
+</style>

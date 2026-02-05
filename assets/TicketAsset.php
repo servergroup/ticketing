@@ -5,7 +5,7 @@ use yii\web\AssetBundle;
 
 class TicketAsset extends AssetBundle
 {
-    public $sourcePath = '@vendor/hail812/yii2-adminlte3/src/web';
+    public $sourcePath = '@web';
 
     public $css = [
        

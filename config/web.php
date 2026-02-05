@@ -4,6 +4,7 @@ $params = require __DIR__ . '/params.php';
 $db = require __DIR__ . '/db.php';
 
 $config = [
+    'timeZone' => 'Europe/Rome',
     'id' => 'basic',
     'basePath' => dirname(__DIR__),
      
@@ -13,6 +14,7 @@ $config = [
         '@npm'   => '@vendor/npm-asset',
     ],
     'components' => [
+        
         'request' => [
             // !!! insert a secret key in the following (if it is empty) - this is required by cookie validation
             'cookieValidationKey' => 't01WuOCqJYwM90-YE6WOdya_UuYUqNjO',
@@ -20,7 +22,7 @@ $config = [
         'view' => [
          'theme' => [
              'pathMap' => [
-                '@app/views' => '@vendor/hail812/yii2-adminlte3/src/views'
+                '@app/views' => '@app/views'
              ],
          ],
     ],

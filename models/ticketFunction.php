@@ -18,7 +18,7 @@ class ticketFunction extends Model
         $code = '';
 
         for ($i = 0; $i < $length; $i++) {
-            $code = random_int(111111, 999999);
+            
         }
 
         return $code;
@@ -33,12 +33,12 @@ class ticketFunction extends Model
             ->setTextBody($messagio)
             ->send();
     }
-    public function verifyTicket($problema, $azienda)
+    public function verifyTicket($problema)
     {
-        return Ticket::findOne(['problema' => $problema, 'azienda' => $azienda]);
+        return Ticket::findOne(['problema' => $problema, 'id_cliente' => Yii::$app->user->identity->id]);
     }
 
-    public function newTicket($problema, $ambito, $scadenza, $azienda, $priorita, $recapito)
+    public function newTicket($problema, $ambito, $scadenza, $priorita)
     {
         $ticket = new Ticket();
         $admins = User::find()->where(['ruolo' => ['amministratore', 'itc', 'developer']])->all();
@@ -53,20 +53,12 @@ class ticketFunction extends Model
         $ticket->ambito = $ambito;
         $ticket->stato = 'aperto';
         $ticket->codice_ticket = strval($this->code_random());
-        $ticket->scadenza = $scadenza;
+        $ticket->scadenza =$scadenza ?? null;
         $ticket->data_invio = date('Y-m-d H:i:s');
         $ticket->id_cliente = $cliente->id;
         $ticket->priorita = $priorita;
-        $ticket->recapito_telefonico = $recapito;
-        $ticket->azienda = $azienda;
-        // Controllo priorità alta
-        $oggi = strtotime(date('Y-m-d'));
-        $scadenzaTimestamp = strtotime($ticket->scadenza);
-        $treGiorniDopo = strtotime('+3 days', $oggi);
-
-        if ($scadenzaTimestamp <= $treGiorniDopo) {
-            $ticket->priorita = 'Alta';
-
+       
+    
             foreach ($admins as $admin) {
                 $this->contact(
                     $admin->email,
@@ -76,7 +68,7 @@ class ticketFunction extends Model
                     'Scadenza in arrivo'
                 );
             }
-        }
+        
 
         if ($ticket->save()) {
              foreach ($admins as $admin) {
@@ -88,8 +80,7 @@ class ticketFunction extends Model
                     Nuovo ticket in arrivo '
                         .'codice ticket: '.$ticket->codice_ticket.'<br>'
                         . 'Richiesta:'.$ticket->problema
-                        .'Scadenza: ' . $ticket->scadenza
-                        .'Azienda richiedente:'.$ticket->azienda
+                        .'Azienda richiedente:'.$cliente->azienda
                         .'</p'
                         .'</body>'
                         .'</html>'
@@ -98,9 +89,6 @@ class ticketFunction extends Model
             }
             return true;
         } else {
-
-            var_dump($ticket->getErrors());
-
             return false;
         }
     }
@@ -110,11 +98,7 @@ class ticketFunction extends Model
         $ticket = Ticket::findOne($id_ticket);
         $ticket->stato = 'risolto';
 
-        if ($ticket->save()) {
-            return true;
-        } else {
-            return false;
-        }
+       return $ticket->save();
     }
     public function ticketScaduto()
     {
@@ -124,7 +108,7 @@ class ticketFunction extends Model
         $history=new History();
 
         foreach ($tickets as $ticket) {
-            $data_scadenza = date($ticket->scadenza);
+            $data_scadenza =$ticket->scadenza;
             $personale=User::find()->where(['username'=>['ammistratore','cliente','itc','sviluppatore']])->all();
             if ($data_corrente < $data_scadenza) {
                 $ticket->stato = 'scaduto';
@@ -166,8 +150,10 @@ class ticketFunction extends Model
                 $cliente=User::findOne(['username'=>Yii::$app->user->identity->username]); 
                 $personale=User::find()->where(['username'=>['ammistratore','cliente','itc','sviluppatore']])->all();
                 $ticket=Ticket::findOne($id);
-                $history->id_ticket=$ticket->id_ticket;
+                $history->id_ticket=$ticket->id;
                 $history->id_operatore=$cliente->id;
+                $ticket->id_cliente=$cliente->id;
+                $ticket->stato=$ticket->stato;
                 $history->save();
 
                 foreach($personale as $personale_item){
@@ -176,7 +162,7 @@ class ticketFunction extends Model
                 <p>si comunica che,in data '. date('Y-m-d') . ' alle ore'. date('H:i:s').' è stato cancellato un ticket da'.  $cliente->nome.' '. $cliente->cognome. ' </p>
                 </html>','Eliminazione ticket');
                 }
-                $ticket->delete();
+                return $ticket->delete();
             }
 
 
@@ -245,6 +231,28 @@ class ticketFunction extends Model
             }
 
 
+            public function ritiraAssegnazione($codice_ticket)
+            {
+                $assegnazione=Assegnazioni::findOne(['codice_ticket'=>$codice_ticket]);
+                $ticket=Ticket::findOne(['codice_ticket'=>$codice_ticket]);
+                
+                $ticket->stato='aperto';
+                $assegnazione->delete();
+                return $ticket->save();
+
+
+
+            }
+
+            public function modificaTicket($codice_ticket,$problema,$priorita)
+            {
+                $ticket=Ticket::findOne(['codice_ticket'=>$codice_ticket]);
+
+                $ticket->problema=$problema;
+                $ticket->priorita=$priorita;
+
+                return $ticket->save();
+            }
 
                 
 }

@@ -3,6 +3,51 @@
 $vendorDir = dirname(__DIR__);
 
 return array (
+  'yiisoft/yii2-bootstrap' => 
+  array (
+    'name' => 'yiisoft/yii2-bootstrap',
+    'version' => '2.0.11.0',
+    'alias' => 
+    array (
+      '@yii/bootstrap' => $vendorDir . '/yiisoft/yii2-bootstrap/src',
+    ),
+  ),
+  'aryelds/yii2-sweet-alert' => 
+  array (
+    'name' => 'aryelds/yii2-sweet-alert',
+    'version' => 'dev-master',
+    'alias' => 
+    array (
+      '@aryelds/sweetalert' => $vendorDir . '/aryelds/yii2-sweet-alert',
+    ),
+  ),
+  'yiisoft/yii2-bootstrap4' => 
+  array (
+    'name' => 'yiisoft/yii2-bootstrap4',
+    'version' => '2.0.12.0',
+    'alias' => 
+    array (
+      '@yii/bootstrap4' => $vendorDir . '/yiisoft/yii2-bootstrap4/src',
+    ),
+  ),
+  'hail812/yii2-adminlte-widgets' => 
+  array (
+    'name' => 'hail812/yii2-adminlte-widgets',
+    'version' => '1.0.5.0',
+    'alias' => 
+    array (
+      '@hail812/adminlte/widgets' => $vendorDir . '/hail812/yii2-adminlte-widgets/src',
+    ),
+  ),
+  'hail812/yii2-adminlte3' => 
+  array (
+    'name' => 'hail812/yii2-adminlte3',
+    'version' => '1.1.9.0',
+    'alias' => 
+    array (
+      '@hail812/adminlte3' => $vendorDir . '/hail812/yii2-adminlte3/src',
+    ),
+  ),
   'yiisoft/yii2-bootstrap5' => 
   array (
     'name' => 'yiisoft/yii2-bootstrap5',
@@ -47,51 +92,6 @@ return array (
     'alias' => 
     array (
       '@yii/symfonymailer' => $vendorDir . '/yiisoft/yii2-symfonymailer/src',
-    ),
-  ),
-  'yiisoft/yii2-bootstrap4' => 
-  array (
-    'name' => 'yiisoft/yii2-bootstrap4',
-    'version' => '2.0.12.0',
-    'alias' => 
-    array (
-      '@yii/bootstrap4' => $vendorDir . '/yiisoft/yii2-bootstrap4/src',
-    ),
-  ),
-  'hail812/yii2-adminlte-widgets' => 
-  array (
-    'name' => 'hail812/yii2-adminlte-widgets',
-    'version' => '1.0.5.0',
-    'alias' => 
-    array (
-      '@hail812/adminlte/widgets' => $vendorDir . '/hail812/yii2-adminlte-widgets/src',
-    ),
-  ),
-  'hail812/yii2-adminlte3' => 
-  array (
-    'name' => 'hail812/yii2-adminlte3',
-    'version' => '1.1.9.0',
-    'alias' => 
-    array (
-      '@hail812/adminlte3' => $vendorDir . '/hail812/yii2-adminlte3/src',
-    ),
-  ),
-  'aryelds/yii2-sweet-alert' => 
-  array (
-    'name' => 'aryelds/yii2-sweet-alert',
-    'version' => 'dev-master',
-    'alias' => 
-    array (
-      '@aryelds/sweetalert' => $vendorDir . '/aryelds/yii2-sweet-alert',
-    ),
-  ),
-  'yiisoft/yii2-bootstrap' => 
-  array (
-    'name' => 'yiisoft/yii2-bootstrap',
-    'version' => '2.0.11.0',
-    'alias' => 
-    array (
-      '@yii/bootstrap' => $vendorDir . '/yiisoft/yii2-bootstrap/src',
     ),
   ),
 );

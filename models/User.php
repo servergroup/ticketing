@@ -16,11 +16,12 @@ class User extends ActiveRecord implements IdentityInterface
     public function rules()
     {
         return [
-            [['nome','cognome','username','password','email','ruolo','auth_key','access_token'], 'required'],
+            [['nome','cognome','username','password','email','ruolo','auth_key','access_token','immagine'], 'required'],
             ['username','unique'],
             [['approvazione','blocco'], 'boolean'],
             ['tentativi', 'integer'],
-            ['partita_iva','string']
+            ['partita_iva','string'],
+            [['recapito_telefonico','azienda'],'string']
         ];
     }
 

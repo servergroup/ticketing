@@ -45,15 +45,15 @@ ActiveForm::end();
                 
                 <td>
 
-                    <?= Html::a('Manda in assegnazione', ['site/index'], ['class' => 'btn btn-primary btn-sm']) ?>
+                    <?= Html::a('Manda in assegnazione', ['admin/delegate','codice_ticket'=>$ticket_item->codice_ticket,'ambito'=>$ticket_item->ambito], ['class' => 'btn btn-primary btn-sm']) ?>
+                    <?= Html::a('Elimina', ['ticket/delete-ticket','id'=>$ticket_item->id], ['class' => 'btn btn-primary btn-sm']) ?>
                 </td>
                 <?php 
-                }else{
-
+                }else if ($ticket_item->stato=='In lavorazione'){
                 
                 ?>
 
-                <td></td>
+                <td><?= Html::a('Ritira assegnazione',['ticket/ritiro','codice_ticket'=>$ticket_item->codice_ticket],['class'=>'btn btn-primary']); ?></td>
                 <?php 
                 }
                 ?>

@@ -8,8 +8,7 @@ class AdminLteAsset extends AssetBundle
     public $sourcePath = '@vendor/almasaeed2010/adminlte/dist';
 
     public $css = [
-        'css/adminlte.min.css',
-        'css/main.css',
+        'css/adminlte.min.css'
     ];
 
     public $js = [

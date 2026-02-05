@@ -34,11 +34,10 @@ class History extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['id_ticket', 'id_operatore', 'id_cliente'], 'default', 'value' => null],
+            
             [['id_ticket', 'id_operatore', 'id_cliente'], 'integer'],
-            [['id_cliente'], 'exist', 'skipOnError' => true, 'targetClass' => User::class, 'targetAttribute' => ['id_cliente' => 'id']],
-            [['id_operatore'], 'exist', 'skipOnError' => true, 'targetClass' => User::class, 'targetAttribute' => ['id_operatore' => 'id']],
-            [['id_ticket'], 'exist', 'skipOnError' => true, 'targetClass' => Ticket::class, 'targetAttribute' => ['id_ticket' => 'id']],
+         
+            
         ];
     }
 

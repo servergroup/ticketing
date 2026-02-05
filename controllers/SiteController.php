@@ -10,7 +10,9 @@ use yii\filters\VerbFilter;
 use app\models\LoginForm;
 use app\models\ContactForm;
 use app\models\userService;
+use app\models\Assegnazioni;
 use app\eccezioni\existUserException;
+use app\eccezioni\tentativiSuperati;
 use app\models\User;
 use app\models\Ticket;
 use Exception;
@@ -75,7 +77,7 @@ public function actionIndex()
 $user=User::findOne(['username'=>Yii::$app->user->identity->username]);
 // Ticket dell’utente
 $ticket = Ticket::find()->where(['id_cliente' => Yii::$app->user->identity->id])->all();
-
+$assegnazioni = Assegnazioni::find()->all();
 // Conteggio corretto dei ticket dell’utente
 $countTicket = Ticket::find()->where(['id_cliente' => Yii::$app->user->identity->id])->count();
 
@@ -85,8 +87,17 @@ $ultimoTicket = Ticket::find()
     ->orderBy(['data_invio' => SORT_DESC])
     ->one();
 
-    // Se tutto ok → mostra index
-    return $this->render('index',['user'=>$user,'ticket'=>$ticket,'countTicket'=>$countTicket,'ultimoTicket'=>$ultimoTicket]);
+    if(!$user->approvazione){
+        Yii::$app->session->setFlash('info','Attendere l\'approvazione da parte di uno dei nostri amministratori');
+     return $this->redirect(['attesa']);  
+    }
+return $this->render('index', [
+    'user' => $user,
+    'ticket' => $ticket,
+    'countTicket' => $countTicket,
+    'ultimoTicket' => $ultimoTicket,
+    'assegnazioni'=>$assegnazioni
+]);
 }
 
 
@@ -111,8 +122,16 @@ $ultimoTicket = Ticket::find()
                 Yii::$app->session->setFlash('error', 'Username non esistente');
                 return $this->render('login', ['model' => $model]);
             }
+            try{
 
-        
+            if ($model->verifyBlocco($model->username)) {
+               throw new tentativiSuperati('A causa della superazione del limite dei tentativi massimi di accesso è \' stato applicato il blocco antiAccesso');
+               
+            }
+
+    
+
+         
             if ($model->login()) {
                 Yii::$app->session->setFlash('success', 'Accesso riuscito');
                 if (Yii::$app->user->identity->ruolo == 'amministratore') {
@@ -123,23 +142,29 @@ $ultimoTicket = Ticket::find()
                 } else if (Yii::$app->user->identity->ruolo == 'itc') {
                    return $this->redirect(['attesa']);
                 } else if (Yii::$app->user->identity->ruolo == 'cliente') {
-                    return $this->redirect(['attesa']);
+                    return $this->redirect(['index']);
                 }
                 //return $this->redirect(['index']);
             }else{
-
+              
             Yii::$app->session->setFlash('error', 'Credenziali errate');
            
             }
             $model->password = '';
            
             return $this->render('login', ['model' => $model]);
+     
+           }catch(tentativiSuperati $e){
+            Yii::$app->session->setFlash('error','A causa dei tentativi di accesso superati e \' stato attivato il blocco antiAccesso');
         }
+
+    }
 
         return $this->render('login', [
             'model' => $model,
             'register'=>$register,
         ]);
+
     }
 
 
@@ -227,12 +252,32 @@ $ultimoTicket = Ticket::find()
     {
       
         $user=User::findOne(['username'=>Yii::$app->user->identity->username]);
-        if(!$user->approvazione){
-       return $this->render('approved');
-    }else{
-         return $this->render('index');
-    }
+        // Ticket dell’utente
+$ticket = Ticket::find()->where(['id_cliente' => Yii::$app->user->identity->id])->all();
 
+// Conteggio corretto dei ticket dell’utente
+$countTicket = Ticket::find()->where(['id_cliente' => Yii::$app->user->identity->id])->count();
+
+//ulitmo ticket rilevato
+
+$ultimoTicket = Ticket::find()
+    ->where(['id_cliente' => Yii::$app->user->identity->id])
+    ->orderBy(['data_invio' => SORT_DESC])
+    ->one();
+
+
+        if(!$user->approvazione){
+      Yii::$app->session->setFlash('info','Si prega di attendere l\'approvazione da parte di uno degli amministratori,grazie per l\'attesa');
+
+        }else{
+         return $this->redirect(['index']);
+
+    }
+      return $this->render('approved',[
+            'user'=>$user,
+         'ticket'=>$ticket,
+         'countTicket'=>$countTicket,
+         'ultimoTicket'=>$ultimoTicket]);
     }
     public function actionRegister()
     {
@@ -244,7 +289,7 @@ $ultimoTicket = Ticket::find()
                 if ($function->verifyUser($user->username, $user->email)) {
                     Yii::$app->session->setFlash('error', 'Utente già registrato');
                 
-                }else if ($function->registerAdmin($user->nome, $user->cognome, $user->password, $user->email, $user->ruolo,$user->partita_iva)) {
+                }else if ($function->registerAdmin($user->nome, $user->cognome, $user->password, $user->email, $user->ruolo,$user->partita_iva,$user->azienda,$user->recapito_telefonico)) {
                     Yii::$app->session->setFlash('success', 'Registrazione avvenuta correttamente');
                     return $this->redirect(['login']);
                 } else {
@@ -302,11 +347,11 @@ $ultimoTicket = Ticket::find()
          
     }
 
-    public function actionReset($email){
+    public function actionReset($username){
         $user=User::findOne(['blocco'=>true]);
         $function=new userService();
         
-                if($function->resetLogin($email))
+                if($function->resetLogin($username))
                     {
                         Yii::$app->session->setFlash('success','Reset effettuato correttamente');
                         return $this->redirect(['index']);
@@ -320,13 +365,6 @@ $ultimoTicket = Ticket::find()
             
     }
 
-    public function actionApprova($email)
-    {
-           $user=User::findOne(['approvazione'=>false]);
-        $function=new userService();
-
-        $function->approva($email);
-    }
 
     public function actionModifyIva()
     {
@@ -347,5 +385,11 @@ $ultimoTicket = Ticket::find()
 
             }
     }
+
+    
+
+    
+
+
 
 }

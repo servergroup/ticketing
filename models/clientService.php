@@ -7,13 +7,13 @@ use app\models\ticketFunction;
 use app\models\reclami;
 class clientService extends Model
 {
-    public function reclami($problema,$azienda)
+    public function reclami($problema)
     {
        $reclami=new Reclami();
        $cliente=User::findOne(['username'=>Yii::$app->user->identity->username]);
        $function=new ticketFunction();
        $reclami->problema=$problema;
-       $reclami->azienda=$azienda;
+       $reclami->azienda=$cliente->azienda;
        $reclami->id_cliente=$cliente->id;
 
        
@@ -24,10 +24,10 @@ class clientService extends Model
        <body>
        <p>E \' stato segnalato un reclamo da '.
         $reclami->azienda.'Per ulteriori informazioni controllare la sezione <a href="">Reclami</a>'.
-        'Reclamo da '. $reclami->azienda
+        'Reclamo da '. $cliente->azienda
         .'</p>
         </body>
-        </html>','Reclamo da '.$reclami->azienda); 
+        </html>','Reclamo da '.$cliente->azienda); 
        return true;
 
         }else{

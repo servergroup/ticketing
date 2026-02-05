@@ -24,6 +24,8 @@ class m260128_095636_table_admin extends Migration
                 'approvazione'=>$this->boolean(),
                 'blocco'=>$this->boolean(),
                 'partita_iva'=>$this->string(),
+                'azienda'=>$this->string(),
+                'recapito_telefonico'=>$this->string()
             ]
         );
     }

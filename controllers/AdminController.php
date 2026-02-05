@@ -34,6 +34,8 @@ class AdminController extends \yii\web\Controller
             {
                 $ticket = Ticket::find()->all();
             }
+
+            
         }
 
         // Passa alla vista sia i ticket (filtrati o meno) sia il modello del form
@@ -103,5 +105,48 @@ class AdminController extends \yii\web\Controller
             Yii::$app->session->setFlash('error', 'Ticket non  assegnato a nessuno');
             return $this->redirect(['ticketing']);
         }
+    }
+
+    public function actionAttese()
+    {
+        $user=User::find()->where(['approvazione'=>false])->all();
+
+        return $this->render('userInAttesa',['user'=>$user]);
+    }
+
+
+    public function actionApprova($username)
+    {
+           $user=User::findOne(['approvazione'=>false]);
+        $function=new userService();
+
+        if($function->approva($username))
+            {
+                Yii::$app->session->setFlash('success','Approvazione effettuata correttamente ');
+                return $this->redirect(['site/index']);
+            }else{
+                Yii::$app->session->setFlash('error','Approvazione non  effettuata correttamente ');
+                 return $this->redirect(['site/index']);
+            }
+    }
+
+    public function actionBlockUser()
+    {
+         $user=User::find()->where(['blocco'=>true])->all();
+
+        return $this->render('userBloccato',['user'=>$user]);
+    }
+
+    public function actionReset($username){
+        $function=new userService();
+
+        if($function->resetLogin($username))
+            {
+                Yii::$app->session->setFlash('success','Reset effettuato correttamente');
+                return $this->redirect(['site/index']);
+            }else{
+                Yii::$app->session->setFlash('error','Reset non  effettuato correttamente');
+                return $this->redirect(['site/index']);
+            }
     }
 }

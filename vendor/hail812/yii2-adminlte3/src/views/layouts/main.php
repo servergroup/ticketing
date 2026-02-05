@@ -1,134 +1,54 @@
 <?php
-use hail812\adminlte3\assets\AdminLteAsset;
+
+/* @var $this \yii\web\View */
+/* @var $content string */
+
 use yii\helpers\Html;
-use yii\web\View;
 
-$asset = AdminLteAsset::register($this);
-$assetDir = $asset->baseUrl;
+\hail812\adminlte3\assets\FontAwesomeAsset::register($this);
+\hail812\adminlte3\assets\AdminLteAsset::register($this);
+$this->registerCssFile('https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback');
 
-$this->beginPage();
+$assetDir = Yii::$app->assetManager->getPublishedUrl('@vendor/almasaeed2010/adminlte/dist');
+
+$publishedRes = Yii::$app->assetManager->publish('@vendor/hail812/yii2-adminlte3/src/web/js');
+$this->registerJsFile($publishedRes[1].'/control_sidebar.js', ['depends' => '\hail812\adminlte3\assets\AdminLteAsset']);
 ?>
+<?php $this->beginPage() ?>
 <!DOCTYPE html>
 <html lang="<?= Yii::$app->language ?>">
 <head>
     <meta charset="<?= Yii::$app->charset ?>">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <?= Html::csrfMetaTags() ?>
+    <?php $this->registerCsrfMetaTags() ?>
     <title><?= Html::encode($this->title) ?></title>
     <?php $this->head() ?>
-
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
-    <?php
-    // FLASH SUCCESS
-    if (Yii::$app->session->hasFlash('success')) {
-        $msg = Yii::$app->session->getFlash('success');
-        $this->registerJs("
-            Swal.fire({
-                icon: 'success',
-                title: " . json_encode($msg) . ",
-                confirmButtonText: 'OK'
-            });
-        ", View::POS_END);
-    }
-
-    // FLASH ERROR
-    if (Yii::$app->session->hasFlash('error')) {
-        $msg = Yii::$app->session->getFlash('error');
-        $this->registerJs("
-            Swal.fire({
-                icon: 'error',
-                title: " . json_encode($msg) . ",
-                confirmButtonText: 'OK'
-            });
-        ", View::POS_END);
-    }
-    ?>
 </head>
-
-<body class="hold-transition sidebar-mini layout-fixed">
+<body class="hold-transition sidebar-mini">
 <?php $this->beginBody() ?>
 
 <div class="wrapper">
+    <!-- Navbar -->
+    <?= $this->render('navbar', ['assetDir' => $assetDir]) ?>
+    <!-- /.navbar -->
 
-    <!-- NAVBAR MOBILE -->
-    <?php if (!Yii::$app->user->isGuest): ?>
-    <nav class="main-header navbar navbar-expand navbar-white navbar-light mobile-navbar">
-        <ul class="navbar-nav mobile-nav">
-            <li class="nav-item">
-                <a class="nav-link" data-widget="pushmenu" href="#">
-                    <img src="<?= Yii::getAlias('@web/img/menu.png') ?>" style="width:22px;">
-                </a>
-            </li>
-            <li class="nav-item">
-                <span class="nav-link page-title"><?= Html::encode($this->title) ?></span>
-            </li>
-        </ul>
-    </nav>
-    <?php endif; ?>
+    <!-- Main Sidebar Container -->
+    <?= $this->render('sidebar', ['assetDir' => $assetDir]) ?>
 
-    <!-- SIDEBAR -->
-    <?php if (!Yii::$app->user->isGuest): ?>
-        <?= $this->render('@vendor/hail812/yii2-adminlte3/src/views/layouts/sidebar.php', [
-            'assetDir' => $assetDir
-        ]) ?>
-    <?php endif; ?>
+    <!-- Content Wrapper. Contains page content -->
+    <?= $this->render('content', ['content' => $content, 'assetDir' => $assetDir]) ?>
+    <!-- /.content-wrapper -->
 
-    <!-- CONTENT -->
-    <div class="content-wrapper">
-        <section class="content">
-            <div class="container-fluid">
-                <?= $content ?>
-            </div>
-        </section>
-    </div>
+    <!-- Control Sidebar -->
+    <?= $this->render('control-sidebar') ?>
+    <!-- /.control-sidebar -->
 
-    <!-- FOOTER -->
-    <footer class="main-footer">
-        <strong>&copy; <?= date('Y') ?> Dataseed.</strong> All rights reserved.
-    </footer>
-
+    <!-- Main Footer -->
+    <?= $this->render('footer') ?>
 </div>
 
 <?php $this->endBody() ?>
 </body>
 </html>
 <?php $this->endPage() ?>
-
-
-<style>
-/* Nascondi navbar su desktop */
-.mobile-navbar {
-    display: none;
-}
-
-/* Mostra navbar su mobile */
-@media (max-width: 768px) {
-    .mobile-navbar {
-        display: flex !important;
-        justify-content: space-between;
-        padding-left: 10px;
-    }
-
-    .mobile-nav {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
-
-    .page-title {
-        font-weight: 600;
-        font-size: 16px;
-    }
-
-    /* Riduci larghezza sidebar su mobile */
-    .main-sidebar {
-        width: 220px !important;
-    }
-
-    /* Content più largo su mobile */
-    .content-wrapper {
-        margin-left: 0 !important;
-    }
-}
-</style>

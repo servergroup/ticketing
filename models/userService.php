@@ -3,6 +3,7 @@
 namespace app\models;
 
 use Yii;
+use yii\web\UploadedFile;
 use app\models\User;
 
 use yii\base\Model;
@@ -64,9 +65,19 @@ class userService extends Model
 
   
 
-    public function registerAdmin($nome, $cognome, $password, $email, $ruolo,$partita_iva)
+    public function registerAdmin($nome, $cognome, $password, $email, $ruolo,$partita_iva,$azienda,$recapito_telefonico)
     {
         $user = new User();
+
+        $file=UploadedFile::getInstance($user,'immagine');
+
+        if($file){
+            $fileName=Yii::$app->security->generatePasswordHash('foto'.time()).'.'.$file->extension;
+
+
+            $file->saveAs('./upload/'.$fileName);
+            $user->immagine=$fileName;
+        }
 
         $user->nome = $nome;
         $user->cognome = $cognome;
@@ -76,13 +87,24 @@ class userService extends Model
         $user->auth_key = Yii::$app->security->generateRandomString();
         $user->access_token = Yii::$app->security->generateRandomString();
         $user->ruolo = $ruolo;
+        $user->azienda=$azienda;
+        $user->recapito_telefonico=$recapito_telefonico;
         $user->tentativi=10;
         $user->blocco=false;
         $user->partita_iva=$partita_iva;
+        
+        
         if($user->partita_iva!=null && $user->ruolo='cliente')
             {
                 $user->approvazione=true;
+            }else{
+                $user->approvazione=false;
             }
+
+            if($user->azienda ==null || $user->azienda == '')
+                {
+                    $user->azienda='Dataseed';
+                }
         if ($user->save()) {
 
         if(!$user->approvazione)
@@ -206,7 +228,7 @@ public function approva($username)
     $user=User::findOne(['username'=>$username]);
     $user->approvazione=true;
 
-    $user->save();
+    return $user->save();
 
 
 }
@@ -225,5 +247,19 @@ public function ModifyPartitaIva($partitaIva)
         }
 }
 
+public function modifyImmagine()
+{
+
+$user=User::findOne(['username'=>Yii::$app->user->identity->username]);
+    $file=UploadedFile::getInstance($user,'immagine');
+
+        if($file){
+            $fileName=Yii::$app->security->generatePasswordHash('foto'.time()).'.'.$file->extension;
+
+
+            $file->saveAs('./upload/'.$fileName);
+            $user->immagine=$fileName;
+        }
+}
 
 }

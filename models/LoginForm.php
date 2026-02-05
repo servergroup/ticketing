@@ -12,6 +12,7 @@ class LoginForm extends Model
     public $password;
     public $email;
     public $tentativi;
+    public $blocco;
     public $rememberMe = false;
 
     private $_user = false;
@@ -52,6 +53,7 @@ class LoginForm extends Model
     {
         $user = $this->getUser();
         $this->tentativi = $user->tentativi;
+        $this->blocco=$user->blocco;
         if (
             $this->username == $user->username && Yii::$app->security->validatePassword($this->password, $user->password) && $user->ruolo == 'amministratore' && $user->tentativi > 0 && !$user->blocco ||
             $this->username == $user->username && Yii::$app->security->validatePassword($this->password, $user->password) && $user->ruolo == 'itc'  && $user->tentativi > 0  && !$user->blocco ||
@@ -91,5 +93,20 @@ class LoginForm extends Model
             $user->blocco = false;
             $user->save();
         }
+    }
+
+    
+    public function verifyBlocco($username){
+
+    return User::findOne(['blocco'=>true]);
+    }
+
+       public function bloccaUser($username)
+    {
+        $user=User::findOne(['username'=>$username]);
+
+        $user->blocco=true;
+
+        return $user->save();
     }
 }

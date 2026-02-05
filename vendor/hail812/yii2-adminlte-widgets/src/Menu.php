@@ -15,7 +15,7 @@ use yii\helpers\Url;
  * Menu::widget([
  *      'items' => [
  *          [
- *              'label' => 'Dashboard',
+ *              'label' => 'Starter Pages',
  *              'icon' => 'tachometer-alt',
  *              'badge' => '<span class="right badge badge-info">2</span>',
  *              'items' => [

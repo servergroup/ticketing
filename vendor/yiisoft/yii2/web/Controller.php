@@ -424,10 +424,6 @@ class Controller extends BaseController
         return $this->response->redirect(Yii::$app->getUser()->getReturnUrl($defaultUrl));
     }
 
-        public function goDevIndex($defaultUrl = 'site/index-dev')
-    {
-        return $this->response->redirect(Yii::$app->getUser()->getReturnUrl($defaultUrl));
-    }
     /**
      * Refreshes the current page.
      * This method is a shortcut to [[Response::refresh()]].
