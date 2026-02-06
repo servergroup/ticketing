@@ -4,15 +4,11 @@ namespace app\models;
 
 use Yii;
 use yii\base\Model;
-use yii\web\Cookie;
 
 class LoginForm extends Model
 {
-    public $username;
+    public $username;   // username O email
     public $password;
-    public $email;
-    public $tentativi;
-    public $blocco;
     public $rememberMe = false;
 
     private $_user = false;
@@ -23,27 +19,30 @@ class LoginForm extends Model
             [['username', 'password'], 'required'],
             ['rememberMe', 'boolean'],
             ['password', 'validatePassword'],
-            ['tentativi', 'required'],
-            ['approvazione','required'],
-            ['blocco','required']
         ];
     }
 
     public function validatePassword($attribute, $params)
     {
-        if (!$this->hasErrors()) {
-            $user = $this->getUser();
+        if ($this->hasErrors()) {
+            return;
+        }
 
-            if (!$user || !Yii::$app->security->validatePassword($this->password, $user->password)) {
-                $this->addError($attribute, 'Credenziali errate.');
-            }
+        $user = $this->getUser();
+
+        if (!$user || !Yii::$app->security->validatePassword($this->password, $user->password)) {
+            $this->addError($attribute, 'Credenziali errate.');
         }
     }
 
     public function getUser()
     {
         if ($this->_user === false) {
-            $this->_user = User::findByUsername($this->username);
+            // username O email nello stesso campo
+            $this->_user = User::find()
+                ->where(['username' => $this->username])
+                ->orWhere(['email' => $this->username])
+                ->one();
         }
 
         return $this->_user;
@@ -52,61 +51,66 @@ class LoginForm extends Model
     public function login()
     {
         $user = $this->getUser();
-        $this->tentativi = $user->tentativi;
-        $this->blocco=$user->blocco;
-        if (
-            $this->username == $user->username && Yii::$app->security->validatePassword($this->password, $user->password) && $user->ruolo == 'amministratore' && $user->tentativi > 0 && !$user->blocco ||
-            $this->username == $user->username && Yii::$app->security->validatePassword($this->password, $user->password) && $user->ruolo == 'itc'  && $user->tentativi > 0  && !$user->blocco ||
-            $this->username == $user->username && Yii::$app->security->validatePassword($this->password, $user->password) && $user->ruolo == 'cliente' && $user->tentativi > 0 && !$user->blocco ||
-            $this->username == $user->username && Yii::$app->security->validatePassword($this->password, $user->password) && $user->ruolo == 'developer' && $user->tentativi > 0  && !$user->blocco
-        ) {
-           
 
-
-            return Yii::$app->user->login(
-                $this->getUser(),
-                $this->rememberMe ? 3600 * 24 * 30 : 0
-            );
-        } else {
-            $user->tentativi -= 1;
-            $user->save();
-
-            if ($user->tentativi < 0) {
-                $user->tentativi = 0;
-                $this->bloccaTutto();
-            }
+        if (!$user) {
             return false;
         }
+
+        // BLOCCO
+        if ($user->blocco || $user->tentativi <= 0) {
+            $user->blocco = true;
+            $user->save();
+            return false;
+        }
+
+        // PASSWORD
+        if (!Yii::$app->security->validatePassword($this->password, $user->password)) {
+
+            $user->tentativi -= 1;
+
+            if ($user->tentativi <= 0) {
+                $user->tentativi = 0;
+                $user->blocco = true;
+            }
+
+            $user->save();
+            return false;
+        }
+
+        // RUOLI
+        if (!in_array($user->ruolo, ['amministratore', 'itc', 'cliente', 'developer'])) {
+            return false;
+        }
+
+        // LOGIN OK
+        return Yii::$app->user->login(
+            $user,
+            $this->rememberMe ? 3600 * 24 * 30 : 0
+        );
     }
 
     public function bloccaTutto()
     {
         $user = $this->getUser();
 
-        if ($user->tentativi == 0) {
-            $user->tentativi = 0;
+        if (!$user) return;
 
-            $user->blocco = true;
-
-            $user->save();
-        } else {
-            $user->blocco = false;
-            $user->save();
-        }
+        $user->tentativi = 0;
+        $user->blocco = true;
+        $user->save();
     }
 
-    
-    public function verifyBlocco($username){
-
-    return User::findOne(['blocco'=>true]);
-    }
-
-       public function bloccaUser($username)
+    public function verifyBlocco($username)
     {
-        $user=User::findOne(['username'=>$username]);
+        return User::findOne(['username' => $username, 'blocco' => true]);
+    }
 
-        $user->blocco=true;
+    public function bloccaUser($username)
+    {
+        $user = User::findOne(['username' => $username]);
+        if (!$user) return false;
 
+        $user->blocco = true;
         return $user->save();
     }
 }

@@ -8,11 +8,66 @@ use Exception;
 use app\models\User;
 use app\models\userService;
 use app\models\LoginForm;
+use yii\filters\AccessControl;
+use yii\filters\VerbFilter;
 use app\models\Ticket;
 use app\models\ticketFunction;
 
 class AdminController extends \yii\web\Controller
 {
+
+public function behaviors()
+{
+    return [
+        'access' => [
+            'class' => AccessControl::class,
+            'only' => ['ticketing','scadence','open','delegate','attese','approva','block-user','reset'],
+            'rules' => [
+                [
+                    'actions' => ['ticketing','scadence','open','delegate','attese','approva','block-user','reset'],
+                    'allow' => true,
+                    'roles' => ['@'], // deve essere loggato
+                    'matchCallback' => function ($rule, $action) {
+                        return Yii::$app->user->identity->ruolo === 'amministratore';
+                    }
+                ],
+            ],
+            'denyCallback' => function () {
+                Yii::$app->session->setFlash('error','Non sei autorizzato ad accedere a questa rotta, questa rotta e\' riservata agli amministratori del sistema');
+                return Yii::$app->response->redirect(['site/login']);
+            }
+        ],
+
+        'verbs' => [
+            'class' => VerbFilter::class,
+            'actions' => [],
+        ],
+    ];
+}
+
+
+    /**
+     * {@inheritdoc}
+     */
+    public function actions()
+    {
+        return [
+            'error' => [
+                'class' => 'yii\web\ErrorAction',
+            ],
+            'captcha' => [
+                'class' => 'yii\captcha\CaptchaAction',
+                'fixedVerifyCode' => YII_ENV_TEST ? 'testme' : null,
+            ],
+        ];
+    }
+
+    /**
+     * Displays homepage.
+     *
+     * @return string
+     */
+
 
     public function actionTicketing()
     {

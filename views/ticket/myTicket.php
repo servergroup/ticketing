@@ -72,7 +72,11 @@ use yii\helpers\Html;
 
                 <td>
                        <?= Html::a('<img src='.Yii::getAlias('@web/img/delete.png').'>',['ticket/delete-ticket','id'=>$ticket_item->id]) ?>
-                       <?= Html::a('<img src='.Yii::getAlias('@web/img/pen.png').'>',['ticket/modify-ticket','codiceTicket'=>$ticket_item->codice_ticket]) ?>
+                    <?= Html::a(
+    Html::img(Yii::getAlias('@web/img/pen.png')),
+    ['ticket/modify-ticket', 'codiceTicket' => $ticket_item->codice_ticket]
+) ?>
+
 
                 </td>
             </tr>

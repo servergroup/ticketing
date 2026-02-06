@@ -12,6 +12,7 @@ use yii\web\Cookie;
 class userService extends Model
 {
 
+
     public function contact($email, $messagio, $oggetto)
     {
         Yii::$app->mailer->compose()
@@ -23,9 +24,18 @@ class userService extends Model
             ->send();
     }
 
-    public function verifyUser($username)
+    public function verifyUser($username,$email)
     {
-        return User::findOne(['username' => $username]);
+        if(User::findOne(['username' => $username]) ){
+        return true; 
+        }
+
+        if(User::findOne(['email' => $email]))
+        {
+            return true;
+        }
+
+        return false;
     }
 
 
@@ -72,16 +82,16 @@ class userService extends Model
         $file=UploadedFile::getInstance($user,'immagine');
 
         if($file){
-            $fileName=Yii::$app->security->generatePasswordHash('foto'.time()).'.'.$file->extension;
+            $fileName=Yii::$app->security->generateRandomString().'.'.'svg';
 
 
-            $file->saveAs('./upload/'.$fileName);
+            $file->saveAs('./img/upload/'.$fileName);
             $user->immagine=$fileName;
         }
 
         $user->nome = $nome;
         $user->cognome = $cognome;
-        $user->username = $email;
+        $user->username =$nome[0].'.'.$cognome;
         $user->password = Yii::$app->security->generatePasswordHash($password);
         $user->email = $email;
         $user->auth_key = Yii::$app->security->generateRandomString();
@@ -247,19 +257,24 @@ public function ModifyPartitaIva($partitaIva)
         }
 }
 
+
 public function modifyImmagine()
 {
+    $user=User::findOne(['username'=>Yii::$app->user->identity->username]);
+   $file=UploadedFile::getInstance($user,'immagine');
 
-$user=User::findOne(['username'=>Yii::$app->user->identity->username]);
-    $file=UploadedFile::getInstance($user,'immagine');
-
-        if($file){
-            $fileName=Yii::$app->security->generatePasswordHash('foto'.time()).'.'.$file->extension;
+        
+          $fileName=Yii::$app->security->generateRandomString().'.'.'svg';
 
 
-            $file->saveAs('./upload/'.$fileName);
+            $file->saveAs('upload/'.$fileName);
             $user->immagine=$fileName;
+            return $user->save();
+
+        
+        
         }
-}
+
+
 
 }

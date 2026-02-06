@@ -27,10 +27,10 @@ class SiteController extends Controller
         return [
             'access' => [
                 'class' => AccessControl::class,
-                'only' => ['index'],
+                'only' => ['index','contact','mail','recupero-password','attesa','account','modify-username','recovery-mail','reset','modify-iva','modify-image','modify-email'],
                 'rules' => [
                     [
-                        'actions' => ['index', 'logout'],
+                        'actions' => ['index','contact', 'logout'],
                         'allow' => true,
                         'roles' => ['@'],
 
@@ -118,10 +118,6 @@ return $this->render('index', [
 
         if ($model->load(Yii::$app->request->post())) {
 
-            if (!$function->verifyUser($model->username, $model->email)) {
-                Yii::$app->session->setFlash('error', 'Username non esistente');
-                return $this->render('login', ['model' => $model]);
-            }
             try{
 
             if ($model->verifyBlocco($model->username)) {
@@ -133,7 +129,7 @@ return $this->render('index', [
 
          
             if ($model->login()) {
-                Yii::$app->session->setFlash('success', 'Accesso riuscito');
+                
                 if (Yii::$app->user->identity->ruolo == 'amministratore') {
                     return $this->redirect(['attesa']);
                 } else if (Yii::$app->user->identity->ruolo == 'developer') {
@@ -236,7 +232,7 @@ return $this->render('index', [
 
             if ($function->modifyPassword($user->password)) {
                 Yii::$app->session->setFlash('success', 'Password modificata correttamente');
-                return $this->refresh();
+                return $this->redirect(['login']);
             } else {
 
                 Yii::$app->session->setFlash('error', 'Problema durante la modifica della password, riprovare');
@@ -385,6 +381,49 @@ $ultimoTicket = Ticket::find()
 
             }
     }
+
+    
+public function actionModifyImage()
+{
+    $account = User::findOne(['username' => Yii::$app->user->identity->username]);
+    $service = new userService();
+
+    if ($account->load(Yii::$app->request->post())) {
+
+        if ($service->modifyImmagine()) {
+            Yii::$app->session->setFlash('success', 'Immagine modificata con successo');
+        } else {
+            Yii::$app->session->setFlash('error', 'Errore nella modifica dell\'immagine');
+        }
+
+        return $this->redirect(['account']);
+    }
+
+    return $this->render('myAccount', [
+        'account' => $account
+    ]);
+}
+
+public function actionModifyEmail()
+{
+    $user=User::findOne(['username'=>Yii::$app->user->identity->username]);
+    $function=new userService();
+
+    if($user->load(Yii::$app->request->post()))
+        {
+            if($function->recoveryEmail($user->email))
+                {
+                    Yii::$app->session->setFlash('success','Email recuperatacon successo');
+                    return $this->redirect(['logout']);
+                }else{
+                     Yii::$app->session->setFlash('success','Email non recuperatacon successo');
+                }
+        }
+        return $this->render('modifyEmail',[
+            'user'=>$user
+        ]);
+}
+
 
     
 

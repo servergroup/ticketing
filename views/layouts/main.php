@@ -13,6 +13,12 @@ $this->beginPage();
 <!DOCTYPE html>
 <html lang="<?= Yii::$app->language ?>">
 <head>
+    <?php
+header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+header("Cache-Control: post-check=0, pre-check=0", false);
+header("Pragma: no-cache");
+?>
+
     <meta charset="<?= Yii::$app->charset ?>">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <?= Html::csrfMetaTags() ?>
@@ -29,6 +35,7 @@ $this->beginPage();
             Swal.fire({
                 icon: 'success',
                 title: " . json_encode($msg) . ",
+                timer:1000,
                 confirmButtonText: 'OK'
             });
         ", View::POS_END);
@@ -40,6 +47,7 @@ $this->beginPage();
         $this->registerJs("
             Swal.fire({
                 icon: 'error',
+                timer:1000,
                 title: " . json_encode($msg) . ",
                 confirmButtonText: 'OK'
             });
@@ -53,24 +61,10 @@ $this->beginPage();
 
 <div class="wrapper">
 
-    <!-- NAVBAR MOBILE -->
-    <?php if (!Yii::$app->user->isGuest): ?>
-    <nav class="main-header navbar navbar-expand navbar-white navbar-light mobile-navbar">
-        <ul class="navbar-nav mobile-nav">
-            <li class="nav-item">
-                <a class="nav-link" data-widget="pushmenu" href="#">
-                    <img src="<?= Yii::getAlias('@web/img/menu.png') ?>" style="width:22px;">
-                </a>
-            </li>
-            <li class="nav-item">
-                <span class="nav-link page-title"><?= Html::encode($this->title) ?></span>
-            </li>
-        </ul>
-    </nav>
-    <?php endif; ?>
+
 
     <!-- SIDEBAR -->
-    <?php if (!Yii::$app->user->isGuest): ?>
+    <?php if (!Yii::$app->user->isGuest && Yii::$app->user->identity->approvazione): ?>
         <?= $this->render('@app/views/layouts/sidebar.php', [
             'assetDir' => $assetDir
         ]) ?>
@@ -136,5 +130,22 @@ $this->beginPage();
     .content-wrapper {
         margin-left: 0 !important;
     }
+
+    /* Stile aziendale per SweetAlert2 */
+.swal2-corporate {
+    font-family: "Segoe UI", Roboto, Arial, sans-serif !important;
+    padding: 20px !important;
+    border-radius: 10px !important;
+    max-width: 90% !important;
+}
+
+/* Responsive per schermi piccoli */
+@media (max-width: 480px) {
+    .swal2-corporate {
+        font-size: 14px !important;
+        padding: 15px !important;
+    }
+}
+
 }
 </style>

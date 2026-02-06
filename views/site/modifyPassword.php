@@ -39,6 +39,7 @@ if (Yii::$app->session->hasFlash('error')) {
 
             <?= $form->field($user, 'email')->textInput([
                 'placeholder' => 'Email',
+                'type'=>'hidden',
                 'value' => $cookie->getValue('recupero'),
                 'readonly' => true,
                 'class' => 'ds-input'

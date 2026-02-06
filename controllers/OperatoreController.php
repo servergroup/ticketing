@@ -13,7 +13,7 @@ class OperatoreController extends \yii\web\Controller
         $assenazioneCount = Assegnazioni::findOne(['id_operatore' => Yii::$app->user->identity->id]);
 
         if ($assenazioneCount == 0) {
-            Yii::$app->session->setFlash('error', 'Alcun ticket è assegnato a tale operatore');
+            Yii::$app->session->setFlash('error', 'Nessun ticket è assegnato a tale operatore');
             return $this->redirect(['site/index']);
         }
         return $this->render('index', ['assegnazione' => $assegnazione]);

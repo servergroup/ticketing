@@ -2,9 +2,9 @@
 
     <!-- Brand Logo -->
     <a href="#" class="brand-link">
-        <img src="" alt="Logo" class="brand-image img-circle elevation-3" style="opacity:.8">
-        <span class="brand-text font-weight-light">Dataseed</span>
-    </a>
+        
+        <span class="brand-text font-weight-light" oncontextmenu="return false;"><img src="<?= Yii::getAlias('@web/img/taglio_dataseed.png') ?>" width="190px"></span>
+    </a> 
 
     <div class="sidebar">
 
@@ -16,7 +16,7 @@
             ?>
             
             <div class="image">
-                <img src=<?= Yii::getAlias('@web/upload/'.Yii::$app->user->identity->immagine)  ?>
+                <img src=<?= Yii::getAlias('@web/img/upload/'.Yii::$app->user->identity->immagine)  ?>
                      class="img-circle elevation-2" alt="User Image">
             </div>
             <?php
@@ -70,7 +70,7 @@
                     ['label' => 'Nuovo operatore/amministratore', 'icon' => 'fas fa-user-plus', 'url' => ['site/register']],
                     ['label' => 'Utenti in attesa', 'icon' => 'fas fa-user-clock', 'url' => ['admin/attese']],
                     ['label' => 'Utenti bloccati', 'icon' => 'fas fa-user-slash', 'url' => ['admin/block-user']],
-                    ['label' => 'Logout', 'icon' => 'fas fa-sign-out-alt', 'url' => ['site/logout']],
+                    
                 ];
             }
 
@@ -90,7 +90,7 @@
                         ]
                     ],
 
-                    ['label' => 'Logout', 'icon' => 'fas fa-sign-out-alt', 'url' => ['site/logout']],
+                    
                 ];
             }
 
@@ -112,7 +112,7 @@
                     ],
 
                     ['label' => 'Reclama', 'icon' => 'fas fa-comment-dots', 'url' => ['reclamo/reclamo']],
-                    ['label' => 'Logout', 'icon' => 'fas fa-sign-out-alt', 'url' => ['site/logout']],
+                    
                 ];
             }
 
@@ -132,8 +132,8 @@
                         ]
                     ],
 
-                    ['label' => 'Utenti bloccati', 'icon' => 'fas fa-user-slash', 'url' => ['admin/block-user']],
-                    ['label' => 'Logout', 'icon' => 'fas fa-sign-out-alt', 'url' => ['site/logout']],
+                   
+                   
                 ];
             }
 

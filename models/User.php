@@ -16,12 +16,18 @@ class User extends ActiveRecord implements IdentityInterface
     public function rules()
     {
         return [
-            [['nome','cognome','username','password','email','ruolo','auth_key','access_token','immagine'], 'required'],
+            [['nome','cognome','username','password','email','ruolo'], 'required'],
             ['username','unique'],
+            ['email','email'],
             [['approvazione','blocco'], 'boolean'],
             ['tentativi', 'integer'],
-            ['partita_iva','string'],
-            [['recapito_telefonico','azienda'],'string']
+            [['partita_iva','recapito_telefonico','azienda'], 'string'],
+            [
+                ['immagine'],
+                'file',
+                'extensions' => ['jpg','jpeg','png','webp'],
+                'skipOnEmpty' => true
+            ],
         ];
     }
 
@@ -40,10 +46,15 @@ class User extends ActiveRecord implements IdentityInterface
         return static::findOne(['access_token' => $token]);
     }
 
-    public static function findByUsername($username)
-    {
-        return static::findOne(['username' => $username]);
-    }
+public static function findByUsername($value)
+{
+    return static::find()
+        ->where(['username' => $value])
+        ->orWhere(['email' => $value])
+        ->one();
+}
+
+
 
     public function getId()
     {
@@ -64,7 +75,4 @@ class User extends ActiveRecord implements IdentityInterface
     {
         return Yii::$app->security->validatePassword($password, $this->password);
     }
-
- 
-
 }

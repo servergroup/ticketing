@@ -9,18 +9,6 @@ LogAsset::register($this);
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-<?php
-if (Yii::$app->session->hasFlash('error')) {
-    $msg = Yii::$app->session->getFlash('error');
-    $this->registerJs("
-        Swal.fire({
-            icon: 'error',
-            title: " . json_encode($msg) . ",
-            confirmButtonText: 'OK'
-        });
-    ", View::POS_END);
-}
-?>
 
 <div class="login-box">
     <div class="card">
