@@ -1,6 +1,7 @@
 <?php
 use yii\helpers\Html;
 use yii\widgets\ActiveForm;
+/** @var app\models\Turni $turni */
 
 $this->title = 'Registrazione Aziendale';
 ?>
@@ -45,6 +46,7 @@ $this->title = 'Registrazione Aziendale';
         'amministratore' => 'Amministratore'
     ], ['prompt' => 'Seleziona un ruolo', 'id' => 'ruolo-select']) ?>
 
+    
     <!-- CAMPI DINAMICI -->
     <div id="piva-container" style="display:none;">
         <?= $form->field($user, 'partita_iva')->textInput(['maxlength' => true]) ?>
@@ -53,6 +55,8 @@ $this->title = 'Registrazione Aziendale';
     <div id="azienda-container" style="display:none;">
         <?= $form->field($user, 'azienda')->textInput(['maxlength' => true]) ?>
     </div>
+
+
 
 
     <div class="form-group">
@@ -177,6 +181,9 @@ $this->title = 'Registrazione Aziendale';
     border: none;
     transition: background 0.2s;
 }
+#turni{
+    display: none;
+}
 
 .btn-primary:hover {
     background: #003f82;
@@ -275,11 +282,11 @@ document.getElementById('upload-img').addEventListener('change', function(event)
 });
 
 
-/* CAMPI DINAMICI */
 document.getElementById('ruolo-select').addEventListener('change', function() {
     const piva = document.getElementById('piva-container');
     const azienda = document.getElementById('azienda-container');
 
+    // Cliente → mostra PIVA + Azienda
     if (this.value === 'cliente') {
         piva.style.display = 'block';
         azienda.style.display = 'block';
@@ -287,5 +294,9 @@ document.getElementById('ruolo-select').addEventListener('change', function() {
         piva.style.display = 'none';
         azienda.style.display = 'none';
     }
+
+ 
 });
+
+
 </script>

@@ -16,6 +16,7 @@ use app\eccezioni\tentativiSuperati;
 use app\models\User;
 use app\models\Ticket;
 use app\models\ticketFunction;
+use app\models\Turni;
 use Exception;
 
 class SiteController extends Controller
@@ -283,6 +284,7 @@ $ultimoTicket = Ticket::find()
     {
         $user = new User();
         $function = new userService();
+        $turni=new Turni();
 
         if ($user->load(Yii::$app->request->post())) {
             try {
@@ -290,7 +292,8 @@ $ultimoTicket = Ticket::find()
                     Yii::$app->session->setFlash('error', 'Utente già registrato');
                 
                 }else if ($function->registerAdmin($user->nome, $user->cognome, $user->password, $user->email, $user->ruolo,$user->partita_iva,$user->azienda,$user->recapito_telefonico)) {
-                    Yii::$app->session->setFlash('success', 'Registrazione avvenuta correttamente');
+             
+                Yii::$app->session->setFlash('success', 'Registrazione avvenuta correttamente');
                     return $this->redirect(['login']);
                 } else {
 
@@ -305,7 +308,7 @@ $ultimoTicket = Ticket::find()
         }
 
 
-        return $this->render('register', ['user' => $user]);
+        return $this->render('register', ['user' => $user,'turni'=>$turni]);
     }
 
     public function actionAccount()

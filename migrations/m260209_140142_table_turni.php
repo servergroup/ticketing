@@ -12,9 +12,9 @@ class m260209_140142_table_turni extends Migration
         $this->createTable('turni',[
             'id'=>$this->primaryKey(),
             'id_operatore'=>$this->integer()->unique(),
-            'entrata'=>$this->dateTime(),
-            'uscita'=>$this->dateTime(),
-            'pausa'=>$this->dateTime()
+            'entrata'=>$this->time(),
+            'uscita'=>$this->time(),
+            'pausa'=>$this->time()
 
         ]);
 

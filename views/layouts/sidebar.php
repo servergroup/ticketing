@@ -3,7 +3,7 @@
     <!-- Brand Logo -->
     <a href="#" class="brand-link">
         
-        <span class="brand-text font-weight-light" oncontextmenu="return false;"><img src="<?= Yii::getAlias('@web/img/taglio_dataseed.png') ?>" width="190px"></span>
+        <span class="brand-text font-weight-light" oncontextmenu="return false;"><img src="<?= Yii::getAlias('@web/img/taglio_dataseed.svg') ?>" width="190px"></span>
     </a> 
 
     <div class="sidebar">
@@ -68,11 +68,16 @@
                         ]
                     ],
 
+                    [
+                        'label' => 'Gesstione utenti',
+                        'icon' => 'fas fa-user-alt',
+                        'items' => [
                     ['label' => 'Nuovo operatore/amministratore', 'icon' => 'fas fa-user-plus', 'url' => ['site/register']],
                     ['label' => 'Utenti in attesa', 'icon' => 'fas fa-user-clock', 'url' => ['admin/attese']],
                     ['label' => 'Utenti bloccati', 'icon' => 'fas fa-user-slash', 'url' => ['admin/block-user']],
                     ['label' => 'Gestione operatori', 'icon' => 'fas fa-plus', 'url' => ['admin/gestione-dipendenti']]
-                    
+                    ]
+                ]
                 ];
             }
 

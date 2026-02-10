@@ -15,7 +15,7 @@ LogAsset::register($this);
         <div class="login-card-body">
 
             <p class="login-box-msg">
-                <i class="fas fa-ticket-alt">Ticketing</i>
+               <img src="<?= Yii::getAlias('@web/img/taglio_dataseed.svg') ?>" style='width:180px; height:110px;'>
             </p>
 
             <h1 class="text-center mb-4">Accedi</h1>

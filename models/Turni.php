@@ -33,9 +33,9 @@ class Turni extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['id_operatore', 'entrata', 'uscita', 'pausa'], 'default', 'value' => null],
+            [['id_operatore', 'entrata', 'uscita', 'pausa','pausa'], 'default', 'value' => null],
             [['id_operatore'], 'integer'],
-            [['entrata', 'uscita', 'pausa'], 'safe'],
+            [['entrata', 'uscita', 'pausa','pausa'], 'safe'],
             [['id_operatore'], 'unique'],
             [['id_operatore'], 'exist', 'skipOnError' => true, 'targetClass' => User::class, 'targetAttribute' => ['id_operatore' => 'id']],
         ];

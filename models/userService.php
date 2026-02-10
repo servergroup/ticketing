@@ -13,6 +13,24 @@ class userService extends Model
 {
 
 
+
+      public function defineTurni($id_operatore,$entrata,$uscita,$pausa)
+      {
+        $turni=new Turni();
+
+        $turni->id_operatore=$id_operatore;
+        $turni->entrata=$entrata;
+        $turni->uscita=$uscita;
+        $turni->pausa=$pausa;
+
+
+      if(!$turni->save()){
+          var_dump($turni->getErrors());
+
+      }
+        return $turni->save();
+      }
+
     public function contact($email, $messagio, $oggetto)
     {
         Yii::$app->mailer->compose()
@@ -116,7 +134,9 @@ class userService extends Model
                     $user->azienda='Dataseed';
                 }
         if ($user->save()) {
-
+            if($user->ruolo!='cliente'){
+              $this->defineTurni($user->id,null,null,null);   
+            } 
         if(!$user->approvazione)
             {
         $cookie=new Cookie(
@@ -131,7 +151,7 @@ class userService extends Model
             }
             return true;
         } else {
-        
+        var_dump($user->getErrors());
             return false;
         }
     }
@@ -275,6 +295,16 @@ public function modifyImmagine()
         
         }
 
-      
+           public function modifyTurni($id_operatore,$entrata,$uscita,$pausa)
+      {
+        $turni=Turni::findOne(['id_operatore'=>$id_operatore]);
+
+       
+        $turni->entrata=$entrata;
+        $turni->uscita=$uscita;
+        $turni->pausa=$pausa;
+        return $turni->save();
+
+}
 
 }

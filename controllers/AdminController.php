@@ -11,6 +11,7 @@ use app\models\LoginForm;
 use yii\filters\AccessControl;
 use yii\filters\VerbFilter;
 use app\models\Ticket;
+use app\models\Turni;
 use app\models\ticketFunction;
 
 class AdminController extends \yii\web\Controller
@@ -240,5 +241,29 @@ public function behaviors()
 
     return $this->render('viewOperatori', ['dipendenti' => $dipendenti]);
 }
+
+
+public function actionModifyTurni($id_operatore){
+   $function=new userService();
+   $personale=User::findOne($id_operatore);
+$model=new Turni();
+
+if($model->load(Yii::$app->request->post()))
+        {
+            if($function->modifyTurni($id_operatore,$model->entrata,$model->uscita,$model->pausa))
+                {
+                    Yii::$app->session->setFlash('success','Turni definiti correttamente');
+                    return $this->redirect(['gestione-dipendenti']);
+                }else{
+                     Yii::$app->session->setFlash('error','Errore nella definizione dei turni');
+                      return $this->redirect(['gestione-dipendenti']);
+                }
+
+        }
+        return $this->render('Turni',['model'=>$model,'personale'=>$personale]);
+}
+
+
+
 
 }

@@ -65,12 +65,20 @@ $stato = $stato ?? '—';
           
 
             <div class="stat-card clickable">
-                <div class="stat-icon green"><i class="fas fa-folder-open"></i></div>
+                <div class="stat-icon green"><i class="fas fa-ticket-alt"></i></div>
                 <div class="stat-info" onclick="window.location.href='<?= \yii\helpers\Url::to(['ticket/my-ticket']) ?>'">
-                    <h3>Accedi</h3>
+                    <h3>Ticket</h3>
                     <p>Gestione ticket assegnati</p>
                 </div>
+
+                </div>
+  <div class="stat-card clickable">
+                 <div class="stat-icon green"><i class="fas fa-envelope"></i></div>
+                <div class="stat-info" onclick="window.location.href='<?= \yii\helpers\Url::to(['ticket/my-ticket']) ?>'">
+                    <h3>Messagistica</h3>
+                    <div>
             </div>
+                </div>
 
         <?php elseif ($ruolo === 'amministratore'): ?>
 
@@ -105,10 +113,10 @@ $stato = $stato ?? '—';
             <?php endif; ?>
 
             <?php if ($ruolo === 'amministratore'): ?>
-                <div class="action-card"  onclick="window.location.href='<?= \yii\helpers\Url::to(['ticket/open']) ?>'">
+                <div class="action-card"  onclick="window.location.href='<?= \yii\helpers\Url::to(['admin/open']) ?>'">
                     <h2>Ticket aperti</h2>
                     <p>Visualizza e gestisci i ticket in attesa.</p>
-                    <?= Html::a('Accedi', ['admin/open'], ['class' => 'btn-success']) ?>
+                   
                 </div>
             <?php endif; ?>
 
