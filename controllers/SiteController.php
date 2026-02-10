@@ -29,7 +29,7 @@ class SiteController extends Controller
         return [
             'access' => [
                 'class' => AccessControl::class,
-                'only' => ['index','contact','attesa','account','modify-username','recovery-mail','reset','modify-iva','modify-image','modify-email'],
+                'only' => ['index','contact','attesa','account','modify-username','recovery-mail','reset','modify-iva','modify-image','modify-email','salta-pausa'],
                 'rules' => [
                     [
                         'actions' => ['index','contact', 'logout','index','contact','mail','recupero-password','attesa','account','modify-username','recovery-mail','reset','modify-iva','modify-image','modify-email'],
@@ -75,8 +75,7 @@ class SiteController extends Controller
 
 public function actionIndex()
 {
-  
-$user=User::findOne(['username'=>Yii::$app->user->identity->username]);
+   $user=User::findOne(['username'=>Yii::$app->user->identity->username]);
 // Ticket dell’utente
 $ticket = Ticket::find()->where(['id_cliente' => Yii::$app->user->identity->id])->all();
 $assegnazioni = Assegnazioni::find()->all();
@@ -101,7 +100,8 @@ return $this->render('index', [
     'ticket' => $ticket,
     'countTicket' => $countTicket,
     'ultimoTicket' => $ultimoTicket,
-    'assegnazioni'=>$assegnazioni
+    'assegnazioni'=>$assegnazioni,
+    
 ]);
 }
 
@@ -176,6 +176,9 @@ return $this->render('index', [
      */
     public function actionLogout()
     {
+       $function=new userService();
+
+       $function->fuoriServizio();
         Yii::$app->user->logout();
 
         return $this->goHome();
@@ -431,11 +434,19 @@ public function actionModifyEmail()
         ]);
 }
 
+public function actionSaltaPausa($id)
+{
+    $function=new userService();
+    $turni=Turni::findOne(['id_operatore'=>$id]);
 
-    
-
-    
-
-
+    if($function->saltaPausa($id))
+        {
+            Yii::$app->session->setFlash('success', 'Pausa saltata correttamente');
+            return $this->refresh();
+        }else{
+            Yii::$app->session->setFlash('error', 'Pausa  non saltata correttamente');
+            return $this->refresh();
+        }
+}
 
 }

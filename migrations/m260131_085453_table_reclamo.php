@@ -2,7 +2,7 @@
 
 use yii\db\Migration;
 
-class m260130_085453_table_reclamo extends Migration
+class m260131_085453_table_reclamo extends Migration
 {
     /**
      * {@inheritdoc}
@@ -26,7 +26,8 @@ class m260129_165507_table_reclamo extends Migration
         'id'=>$this->primaryKey(),    
         'problema'=>$this->string(),
         'azienda'=>$this->string(),
-        'id_cliente'=>$this->integer()
+        'id_cliente'=>$this->integer(),
+        'codice_ticket'=>$this->string(),
             
         ]);
 
@@ -40,6 +41,16 @@ class m260129_165507_table_reclamo extends Migration
     'CASCADE'
 );
 
+$this->addForeignKey(
+    'fk_code',
+    'reclamo',
+    'codice_ticket',
+    'ticket',
+    'codice_ticket',
+    'CASCADE',
+    'CASCADE'
+);
+
     }
 
     /**
@@ -48,6 +59,7 @@ class m260129_165507_table_reclamo extends Migration
     public function safeDown()
     {
        $this->dropForeignKey('fk_reclamo_cliente','reclamo');
+       $this->dropForeignKey('fk_code','reclamo');
        $this->dropTable('reclamo');
     }
 

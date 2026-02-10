@@ -14,28 +14,63 @@ class TicketController extends \yii\web\Controller
 {
 
 public function behaviors()
-    {
-        return [
-            'access' => [
-                'class' => AccessControl::class,
-                'only' => ['new-ticket','my-ticket','delete-ticket','ritiro','modify-ticket'],
-                'rules' => [
-                    [
-                        'actions' => ['new-ticket','my-ticket','delete-ticket','ritiro','modify-ticket'],
-                        'allow' => true,
-                        'roles' => ['@'],
+{
+    return [
+        'access' => [
+            'class' => AccessControl::class,
+            'only' => [
+                'new-ticket','my-ticket','delete-ticket','ritiro',
+                'modify-ticket','reintegra','resolve','my-reparto'
+            ],
+            'rules' => [
 
+                // 1️⃣ CLIENTE (solo alcune azioni)
+                [
+                    'allow' => true,
+                    'actions' => ['new-ticket','my-ticket','delete-ticket','modify-ticket'],
+                    'roles' => ['@'],
+                    'matchCallback' => function () {
+                        return Yii::$app->user->identity->ruolo === 'cliente';
+                    }
+                ],
 
+                // 2️⃣ OPERATORE (azioni riservate)
+                [
+                    'allow' => true,
+                    'actions' => ['ritiro','resolve','my-reparto'],
+                    'roles' => ['@'],
+                    'matchCallback' => function () {
+                        return Yii::$app->user->identity->ruolo === 'developer';
+                    }
+                ],
+                 [
+                    'allow' => true,
+                    'actions' => ['ritiro','resolve','my-reparto'],
+                    'roles' => ['@'],
+                    'matchCallback' => function () {
+                        return Yii::$app->user->identity->ruolo === 'ict';
+                    }
+                ],
 
-                    ],
+                // 3️⃣ AMMINISTRATORE (azioni speciali)
+                [
+                    'allow' => true,
+                    'actions' => ['reintegra'],
+                    'roles' => ['@'],
+                    'matchCallback' => function () {
+                        return Yii::$app->user->identity->ruolo === 'amministratore';
+                    }
                 ],
             ],
-            'verbs' => [
-                'class' => VerbFilter::class,
-                'actions' => [],
-            ],
-        ];
-    }
+        ],
+
+        'verbs' => [
+            'class' => VerbFilter::class,
+            'actions' => [],
+        ],
+    ];
+}
+
 
     /**
      * {@inheritdoc}
@@ -220,6 +255,18 @@ public function behaviors()
 
    
 
+public function actionMyReparto()
+{
 
+    $ticket=Ticket::find()->where(['ambito'=>'sviluppo'])->all();
 
+    return $this->render('myDepartment',['ticket'=>$ticket]);
+}
+
+public function actionMyRepartoOpen()
+{
+    $ticket=Ticket::find()->where(['ambito'=>'sviluppo','stato'=>'aperto'])->all();
+
+    return $this->render('myDepartment',['ticket'=>$ticket]);
+}
 }

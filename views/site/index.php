@@ -1,10 +1,12 @@
 <?php
 use yii\helpers\Html;
 use yii\helpers\Url;
-
+use app\models\Turni;
 /** @var app\models\User $user */
 /** @var int $countTicket */
 /** @var string|null $stato */
+
+
 
 $ruolo = $user->ruolo;
 $nome  = Yii::$app->user->identity->nome;
@@ -13,12 +15,14 @@ $nome  = Yii::$app->user->identity->nome;
 $stato = $stato ?? '—';
 ?>
 
+
+
 <div class="dashboard-container">
 
     <!-- HERO -->
     <div class="hero-box">
         <div class="hero-left">
-            <h1>Benvenuto, <?= Html::encode($nome) ?></h1>
+            <h1>Salve, <?= Html::encode($nome) ?></h1>
 
             <?php if ($ruolo === 'cliente'): ?>
                 <p>Area riservata clienti. Gestisci le tue richieste di assistenza.</p>
@@ -28,9 +32,7 @@ $stato = $stato ?? '—';
                 <p>Area amministrativa. Supervisione e gestione ticket.</p>
             <?php endif; ?>
 
-            <span class="hero-date">
-                <?= Yii::$app->formatter->asDatetime(time()) ?>
-            </span>
+          
         </div>
 
         <div class="hero-right">
@@ -65,6 +67,7 @@ $stato = $stato ?? '—';
           
 
             <div class="stat-card clickable">
+              
                 <div class="stat-icon green"><i class="fas fa-ticket-alt"></i></div>
                 <div class="stat-info" onclick="window.location.href='<?= \yii\helpers\Url::to(['ticket/my-ticket']) ?>'">
                     <h3>Ticket</h3>

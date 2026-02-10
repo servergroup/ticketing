@@ -86,7 +86,7 @@ class userService extends Model
     <p>E\' stata inviata al nostro portale una richiesta di modifica della password, pertanto, le inviamo <a href="">il link di recupero di essa</a>.Grazie e buon proseguimento</p>
     </body>
     </html>
-    ', 'Richiesta di recuipero della password');
+    ', 'Richiesta di recupero della password');
 
         return true;
     }
@@ -305,6 +305,56 @@ public function modifyImmagine()
         $turni->pausa=$pausa;
         return $turni->save();
 
+}
+
+public function insertPausa($id_operatore)
+{
+    $turni = Turni::findOne(['id_operatore' => $id_operatore]);
+
+    $oraAttuale = time(); // timestamp attuale
+    $inizioPausa = strtotime($turni->pausa);
+    $finePausa = $inizioPausa + 3600; // +1 ora
+
+    // Pausa per 1 ora
+    if ($oraAttuale >= $inizioPausa && $oraAttuale <= $finePausa) {
+        $turni->stato = 'In pausa';
+    }
+
+    // Fuori servizio
+    if ($oraAttuale >= strtotime($turni->uscita)) {
+        $turni->stato = 'Fuori servizio';
+    }
+
+    // In servizio (fascia oraria 9-18)
+    if ($oraAttuale >= strtotime('09:00:00') && $oraAttuale <= strtotime('18:00:00')) {
+        // Solo se NON è in pausa
+        if (!($oraAttuale >= $inizioPausa && $oraAttuale <= $finePausa)) {
+            $turni->stato = 'In servizio';
+        }
+    }
+
+    return $turni->save();
+}
+
+public function saltaPausa($id)
+{
+    $turni = Turni::findOne(['id_operatore' => $id]);
+
+    // Porta avanti di 1 ora l'orario della pausa
+    $turni->pausa = date('Y-m-d H:i:s', strtotime($turni->pausa . ' +1 hour'));
+
+    // Resetta lo stato
+    $turni->stato = 'In servizio';
+
+    return $turni->save();
+}
+
+public function fuoriServizio(){
+    $turni=Turni::findOne(['id_operatore'=>Yii::$app->user->identity->id]);
+
+    $turni->stato='Fuori Servizio';
+
+    return $turni->save();
 }
 
 }
