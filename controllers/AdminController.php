@@ -77,6 +77,7 @@ public function behaviors()
         // Recupera tutti i ticket (visualizzazione iniziale)
         $ticket = Ticket::find()->all();
 
+      
         // Se il form è stato inviato e i dati sono stati caricati nel modello
         if ($searchTicket->load(Yii::$app->request->post()))
         {
@@ -100,7 +101,7 @@ public function behaviors()
         ]);
     }
 
-    public function actionScadence()
+    public function actionScaduto()
     {
         // Recupera tutti i ticket con stato "scaduto"
         $ticket = Ticket::find()->where(['stato' => 'scaduto'])->all();
@@ -145,6 +146,10 @@ public function behaviors()
         // Classe che contiene la logica di assegnazione dei ticket
         $function = new ticketFunction();
 
+        if($function->random_num($ambito)==null){
+            Yii::$app->session->setFlash('error','Nessun developer è al momento disponibile per la risoluzione del ticket');
+            return $this->redirect(['ticketing']);
+        }
         // Controlla se il ticket è già assegnato
         if ($function->verifyDelegate($codice_ticket)) {
             Yii::$app->session->setFlash('info', 'Il ticket è gia\' in lavorazione');
@@ -204,4 +209,36 @@ public function behaviors()
                 return $this->redirect(['site/index']);
             }
     }
+
+    public function actionScadence($codice_ticket)
+    {
+        $ticket=new Ticket();
+        $function=new ticketFunction();
+
+        if($ticket->load(Yii::$app->request->post()))
+            {
+                if($function->insertScadence($codice_ticket,$ticket->scadenza))
+                    {
+                        Yii::$app->session->setFlash('success','Scadenza impostata correttamente');
+                        $this->redirect(['ticketing']);
+                    }else{
+                        Yii::$app->session->setFlash('error','Scandenza non impostata correttamente');
+                    $this->redirect(['ticketing']);
+                        }
+            }
+
+
+
+            
+    }
+
+    public function actionGestioneDipendenti()
+{
+    $dipendenti = User::find()
+        ->where(['ruolo' => ['developer', 'ict']])
+        ->all();
+
+    return $this->render('viewOperatori', ['dipendenti' => $dipendenti]);
+}
+
 }

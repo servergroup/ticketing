@@ -30,12 +30,20 @@ use yii\widgets\ActiveForm;
         ]
     ) ?>
 
+    <?php 
+    
+    if(Yii::$app->user->identity->ruolo=='amministratore') :?>
+    <?= $form->field($ticket,'scadenza')->input('date') ?>
+
+    <?php endif; ?>
     <div class="form-group">
         <?= Html::submitButton('Modifica', ['class' => 'btn btn-primary']) ?>
     </div>
     <?php ActiveForm::end(); ?>
 
 </div><!-- modifyTicket -->
+
+
 
 <style>
 

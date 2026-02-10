@@ -15,6 +15,7 @@ use app\eccezioni\existUserException;
 use app\eccezioni\tentativiSuperati;
 use app\models\User;
 use app\models\Ticket;
+use app\models\ticketFunction;
 use Exception;
 
 class SiteController extends Controller
@@ -27,10 +28,10 @@ class SiteController extends Controller
         return [
             'access' => [
                 'class' => AccessControl::class,
-                'only' => ['index','contact','mail','recupero-password','attesa','account','modify-username','recovery-mail','reset','modify-iva','modify-image','modify-email'],
+                'only' => ['index','contact','attesa','account','modify-username','recovery-mail','reset','modify-iva','modify-image','modify-email'],
                 'rules' => [
                     [
-                        'actions' => ['index','contact', 'logout'],
+                        'actions' => ['index','contact', 'logout','index','contact','mail','recupero-password','attesa','account','modify-username','recovery-mail','reset','modify-iva','modify-image','modify-email'],
                         'allow' => true,
                         'roles' => ['@'],
 
@@ -81,6 +82,9 @@ $assegnazioni = Assegnazioni::find()->all();
 // Conteggio corretto dei ticket dell’utente
 $countTicket = Ticket::find()->where(['id_cliente' => Yii::$app->user->identity->id])->count();
 
+$function=new ticketFunction();
+
+$function->ticketScaduto();
 // Ultimo ticket dell’utente
 $ultimoTicket = Ticket::find()
     ->where(['id_cliente' => Yii::$app->user->identity->id])

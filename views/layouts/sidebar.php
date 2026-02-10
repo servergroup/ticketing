@@ -62,14 +62,16 @@
                         'items' => [
                             ['label' => 'Tutti i ticket', 'icon' => 'fas fa-list', 'url' => ['admin/ticketing']],
                             ['label' => 'Ticket aperti', 'icon' => 'fas fa-exclamation-circle', 'url' => ['admin/open']],
-                            ['label' => 'Ticket chiusi', 'icon' => 'fas fa-check', 'url' => ['admin/scadence']],
+                            ['label' => 'Ticket chiusi', 'icon' => 'fas fa-check', 'url' => ['admin/scaduto']],
                             ['label' => 'Nuovo ticket', 'icon' => 'fas fa-plus', 'url' => ['ticket/new-ticket']],
+                           
                         ]
                     ],
 
                     ['label' => 'Nuovo operatore/amministratore', 'icon' => 'fas fa-user-plus', 'url' => ['site/register']],
                     ['label' => 'Utenti in attesa', 'icon' => 'fas fa-user-clock', 'url' => ['admin/attese']],
                     ['label' => 'Utenti bloccati', 'icon' => 'fas fa-user-slash', 'url' => ['admin/block-user']],
+                    ['label' => 'Gestione operatori', 'icon' => 'fas fa-plus', 'url' => ['admin/gestione-dipendenti']]
                     
                 ];
             }

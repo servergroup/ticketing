@@ -54,8 +54,19 @@ $this->title = 'Registrazione Aziendale';
         <?= $form->field($user, 'azienda')->textInput(['maxlength' => true]) ?>
     </div>
 
+
     <div class="form-group">
+        <?php
+        if(Yii::$app->user->isGuest){
+        ?>
         <?= Html::submitButton('Registrati', ['class' => 'btn btn-primary']) ?>
+        <?php
+        }else if( Yii::$app->user->identity->ruolo='amministratore'){
+            ?>
+           <?= Html::submitButton('Crea', ['class' => 'btn btn-primary']) ?>
+       <?php  } ?>
+        
+        
     </div>
 
     <?php ActiveForm::end(); ?>
@@ -63,7 +74,7 @@ $this->title = 'Registrazione Aziendale';
 </div>
 
 <style>
-/* CONTAINER GENERALE */
+    /* CONTAINER GENERALE */
 .admin-registerAdmin {
     max-width: 550px;
     margin: 0 auto;
@@ -262,6 +273,7 @@ document.getElementById('upload-img').addEventListener('change', function(event)
     img.style.display = 'block';
     plus.style.opacity = '0';
 });
+
 
 /* CAMPI DINAMICI */
 document.getElementById('ruolo-select').addEventListener('change', function() {

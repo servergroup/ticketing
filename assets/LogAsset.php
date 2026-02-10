@@ -9,7 +9,7 @@ class LogAsset extends AssetBundle
     public $baseUrl = '@web/css';
 
     public $css = [
-        'css/login.css',
+       'css/login.css',
         'css/ticket.css',
         'css/register.css'
     ];

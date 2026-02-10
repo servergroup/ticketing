@@ -4,19 +4,68 @@ namespace app\controllers;
 
 use app\models\Ticket;
 use app\models\ticketFunction;
+use yii\filters\VerbFilter;
+use yii\filters\AccessControl;
 use app\models\User;
+use app\eccezioni\dataException;
 use Yii;
 
 class TicketController extends \yii\web\Controller
 {
+
+public function behaviors()
+    {
+        return [
+            'access' => [
+                'class' => AccessControl::class,
+                'only' => ['new-ticket','my-ticket','delete-ticket','ritiro','modify-ticket'],
+                'rules' => [
+                    [
+                        'actions' => ['new-ticket','my-ticket','delete-ticket','ritiro','modify-ticket'],
+                        'allow' => true,
+                        'roles' => ['@'],
+
+
+
+                    ],
+                ],
+            ],
+            'verbs' => [
+                'class' => VerbFilter::class,
+                'actions' => [],
+            ],
+        ];
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function actions()
+    {
+        return [
+            'error' => [
+                'class' => 'yii\web\ErrorAction',
+            ],
+            'captcha' => [
+                'class' => 'yii\captcha\CaptchaAction',
+                'fixedVerifyCode' => YII_ENV_TEST ? 'testme' : null,
+            ],
+        ];
+    }
+
+
+
     public function actionNewTicket()
     {
         $ticket = new Ticket();
         $function = new ticketFunction();
 
         if ($ticket->load(Yii::$app->request->post())) {
-
-            $function->ticketScaduto();
+            try{
+        if($function->verifyData($ticket->scadenza))
+            {
+             
+            }
             // Se esiste già un ticket simile
             if ($function->verifyTicket($ticket->problema)) {
                 Yii::$app->session->setFlash(
@@ -48,8 +97,12 @@ class TicketController extends \yii\web\Controller
             }
 
             return $this->redirect(['newTicket']);
+        }catch(dataException $e){
+               Yii::$app->session->setFlash('success','La data inserita risulta essere nel passato');
+                return $this->refresh();
         }
 
+        }
         return $this->render('newTicket', [
             'ticket' => $ticket
         ]);
@@ -113,7 +166,7 @@ class TicketController extends \yii\web\Controller
 
         if($ticket->load(Yii::$app->request->post()))
             {
-        if ($function->modificaTicket($ticket->codice_ticket, $ticket->problema, $ticket->priorita)) {
+        if ($function->modificaTicket($ticket->codice_ticket, $ticket->problema, $ticket->priorita,$ticket->ambito,$ticket->scadenza)) {
             Yii::$app->session->setFlash('success', 'modifica del ticket avvenuta con successo');
             return $this->redirect(['site/index']);
         } else {
@@ -128,4 +181,45 @@ class TicketController extends \yii\web\Controller
 
         ]);
     }
+
+    public function actionReintegra($codice_ticket)
+    {
+        $ticket=Ticket::findOne(['codice_ticket'=>$codice_ticket]);
+        $function=new ticketFunction();
+        if($function->prolungate($ticket->codice_ticket))
+            {
+                Yii::$app->session->setFlash('success','Ticket nuovamente gestibile e lavorabile');
+               
+                }else{
+                Yii::$app->session->setFlash('error','Reintegrazione del ticket fallita');
+               
+               
+            }
+
+            return $this->redirect(['admin/ticketing']);
+    }
+
+    public function actionResolve($id)
+    {
+        $ticket=Ticket::findOne($id);
+        $function=new ticketFunction();
+        
+
+            if($function->chiudiTicket($ticket->id))
+                {
+                    Yii::$app->session->setFlash('success','Ticket risolto correttamente');
+                    return $this->redirect(['operatore/view-ticket']);
+                }else{
+                    Yii::$app->session->setFlash('error','Ticket purtroppo non risolto correttamente');
+                    return $this->redirect(['operatore/view-ticket']);
+                }
+        
+
+        return $this->redirect(['operatore/view-ticket']);
+    }
+
+   
+
+
+
 }

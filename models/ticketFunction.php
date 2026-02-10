@@ -102,6 +102,7 @@ class ticketFunction extends Model
 
        return $ticket->save();
     }
+    
     public function ticketScaduto()
     {
         $tickets = Ticket::find()->where(['stato' => 'aperto'])->all();
@@ -112,7 +113,14 @@ class ticketFunction extends Model
         foreach ($tickets as $ticket) {
             $data_scadenza =$ticket->scadenza;
             $personale=User::find()->where(['username'=>['ammistratore','cliente','itc','sviluppatore']])->all();
-            if ($data_corrente < $data_scadenza) {
+
+            if($data_scadenza == null){
+                   $ticket->stato = 'aperto';
+                $ticket->save();
+                return;
+            }
+
+            if ($data_corrente > $data_scadenza) {
                 $ticket->stato = 'scaduto';
                 $ticket->save();
 
@@ -168,69 +176,79 @@ class ticketFunction extends Model
             }
 
 
-            public function random_num($ambito)
-            {
+ public function random_num(string $ambito): ?int
+{
+    // mappa ambito -> ruolo
+    $ruolo = null;
+    if ($ambito === 'sviluppo') $ruolo = 'developer';
+    if ($ambito === 'itc' || $ambito === 'ict') $ruolo = 'itc'; // correggi in base al DB
 
-            $ticket=Ticket::findOne(['ambito'=>$ambito]);
-            $random=0;
-            
-            if($ticket->ambito=='itc')
-                {
-                    $countItc=User::find()->where(['ruolo'=>'itc'])->all();
-
-                   $random=array_rand($countItc);
-                    
-
-                }
-
-               if ($ticket->ambito == 'sviluppo') {
-
-    $developers = User::find()->where(['ruolo' => 'developer'])->all();
-
-
-
-    $randomIndex = array_rand($developers);
-
-    return $developers[$randomIndex]->id;
-}
-
-            if ($ticket->ambito == 'itc') {
-
-    $developers = User::find()->where(['ruolo' => 'itc'])->all();
-
-    if (!$developers) {
-        return null; // nessun developer trovato
+    if ($ruolo === null) {
+        return null;
     }
 
-    $randomIndex = array_rand($developers);
+    // prendi solo gli id (array di valori scalari)
+    $ids = User::find()->select('id')->where(['ruolo' => $ruolo])->column();
 
-    return $developers[$randomIndex]->id;
+    if (empty($ids)) {
+        return null;
+    }
+
+    $randomIndex = array_rand($ids);
+    return (int) $ids[$randomIndex];
 }
 
-                return $random;
 
-            }
 
             public function verifyDelegate($codice_ticket)
             {
                 return Assegnazioni::findOne(['codice_ticket'=>$codice_ticket]);
             }
-            public function assegnaTicket($codice_ticket,$ambito){
-               $assegnazioni=new Assegnazioni();
-               $ticket=Ticket::findOne(['codice_ticket'=>$codice_ticket]);
-               $assegnazioni->id_operatore=$this->random_num($ambito);
-               $assegnazioni->codice_ticket=$codice_ticket;
-               $assegnazioni->ambito=$ambito;
-               $ticket->stato='In lavorazione';
 
-               $ticket->save();
-               if($assegnazioni->save()){
-                return true;
-               }else{
-                return false;
-               }
+      public function assegnaTicket($codice_ticket, $ambito)
+{
+    $ticket = Ticket::findOne(['codice_ticket' => $codice_ticket]);
+    if (!$ticket) {
+        Yii::$app->session->setFlash('error', 'Ticket non trovato');
+        return false;
+    }
 
-            }
+    $operatoreId = $this->random_num($ambito);
+
+    // debug rapido (rimuovere in produzione)
+    Yii::info('OperatoreId da random_num: ' . var_export($operatoreId, true), __METHOD__);
+    Yii::info('Tipo operatoreId: ' . gettype($operatoreId), __METHOD__);
+
+    if ($operatoreId === null) {
+        Yii::$app->session->setFlash('error', 'Nessun operatore disponibile per questo ambito');
+        return false;
+    }
+
+    $assegnazioni = new Assegnazioni();
+    $assegnazioni->id_operatore = (int) $operatoreId;
+    $assegnazioni->codice_ticket = $codice_ticket;
+    $assegnazioni->ambito = $ambito;
+
+    $ticket->stato = 'In lavorazione';
+
+    $transaction = Yii::$app->db->beginTransaction();
+    try {
+        if (!$ticket->save()) {
+            throw new \Exception('Errore salvataggio ticket: ' . json_encode($ticket->getErrors()));
+        }
+        if (!$assegnazioni->save()) {
+            throw new \Exception('Errore salvataggio assegnazione: ' . json_encode($assegnazioni->getErrors()));
+        }
+        $transaction->commit();
+        return true;
+    } catch (\Exception $e) {
+        $transaction->rollBack();
+        Yii::error($e->getMessage(), __METHOD__);
+        Yii::$app->session->setFlash('error', 'Errore durante l\'assegnazione');
+        return false;
+    }
+}
+
 
 
             public function ritiraAssegnazione($codice_ticket)
@@ -246,13 +264,14 @@ class ticketFunction extends Model
 
             }
 
-            public function modificaTicket($codice_ticket,$problema,$priorita)
+            public function modificaTicket($codice_ticket,$problema,$priorita,$ambito,$scadenza)
             {
                 $ticket=Ticket::findOne(['codice_ticket'=>$codice_ticket]);
 
                 $ticket->problema=$problema;
                 $ticket->priorita=$priorita;
-
+                $ticket->ambito=$ambito;
+                $ticket->scadenza=$scadenza;
                 return $ticket->save();
             }
 
@@ -260,7 +279,7 @@ class ticketFunction extends Model
         public function verifyData($scadenza)
 {
    //convertiamo una stringa in data
-    return strtotime($scadenza) >= time();
+    return $scadenza >= time();
 }
 
 public function insertScadence($codice_ticket,$scadenza){
@@ -272,6 +291,15 @@ public function insertScadence($codice_ticket,$scadenza){
 
     
     
+    }
+
+    public function prolungate($codice_ticket)
+    {
+        $ticket=Ticket::findOne(['codice_ticket'=>$codice_ticket]);
+
+        $ticket->stato=$ticket->stato='aperto';
+
+       return  $ticket->save();
     }
 
     

@@ -53,6 +53,19 @@ header("Pragma: no-cache");
             });
         ", View::POS_END);
     }
+
+        // FLASH INFO
+    if (Yii::$app->session->hasFlash('info')) {
+        $msg = Yii::$app->session->getFlash('info');
+        $this->registerJs("
+            Swal.fire({
+                icon: 'info',
+               
+               title: " . json_encode($msg) . ",
+                confirmButtonText: 'OK'
+            });
+        ", View::POS_END);
+    }
     ?>
 </head>
 

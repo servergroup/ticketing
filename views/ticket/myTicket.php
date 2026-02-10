@@ -1,10 +1,12 @@
 <?php
 use yii\helpers\Html;
-
+use app\models\User;
 /** @var yii\web\View $this */
 /** @var app\models\Ticket[] $ticket */
 ?>
+ <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
 <h1 class="text-center">Stato dei miei ticket</h1>
 <p class="text-center">Qui vedrai lo stato dei tuoi ticket</p>
 
@@ -24,54 +26,43 @@ use yii\helpers\Html;
     </thead>
 
     <tbody>
-        <?php foreach ($ticket as $ticket_item): ?>
-            <tr>
-                <td><?= Html::encode($ticket_item->codice_ticket) ?></td>
-                  <?php 
-                      $azienda=app\models\User::findOne($ticket_item->id_cliente);
-
-                      
-                      ?>
-
-                      <td><?= Html::encode($azienda->azienda) ?></td>
-
-
-                <td><?= Html::encode($ticket_item->problema) ?></td>
-              
+       <?php foreach ($ticket as $ticket_item): 
+       $personale=User::findOne(['id'=>$ticket_item->id_cliente]);
+       // usa l'id numerico per essere sicuro che sia valido come HTML id 
+        $modalId = 'modalTicket-' . (int)$ticket_item->id; ?> 
+        <tr> 
+            <td> 
+                <!-- Button trigger modal -->
+                  <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#<?= $modalId ?>"> 
+                    <?= Html::encode($ticket_item->codice_ticket) ?> 
+                </button>
+                 <!-- Modal --> 
+                  <div class="modal fade" id="<?= $modalId ?>" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="<?= $modalId ?>Label" aria-hidden="true">
+                     <div class="modal-dialog">
+                         <div class="modal-content"> 
+                            <div class="modal-header">
+                                 <h5 class="modal-title" id="<?= $modalId ?>Label">Info ticket 
+                                    <?= Html::encode($ticket_item->codice_ticket) ?></h5> 
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button> 
+                                </div> 
+                                <div class="modal-body"> 
+                                    <p>ID: <?= Html::encode($ticket_item->id) ?></p> 
+                                    <p>Codice ticket: <?= Html::encode($ticket_item->codice_ticket) ?></p> 
+                                    <?php if ($ticket_item->scadenza === null): ?> <p>Scadenza: Non definita</p>
+                                         <?php else: ?> <p>Scadenza: <?= Html::encode($ticket_item->scadenza) ?></p> 
+                                            <?php endif; ?> </div> <div class="modal-footer">
+                                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Chiudi</button> 
+                                                </div> 
+                                            </div> 
+                                        </div> 
+                                    </div> 
+                             
                 
-
-                <td>
-                
-
-                     
-                        <?php
-                        if($ticket_item->stato=='aperto')
-                            {
-                        ?>
-                        <span class="btn-success">
-                        <?= Html::encode('In attesa') ?>
-                     
-                    </span>
-                    <?php
-                    }else if($ticket_item->stato=='in lavorazione'){
-                    ?>  
-                          
-                    <span class="btn-warning">
-                        <?= Html::encode('In fase di risoluzione') ?>
-                    </span>
-                    <?php
-                    }else{
-                    ?>
-                      <span class="btn-warning">
-                        <?= Html::encode('chiuso') ?>
-                    </span>
-                    <?php
-                            }
-                    ?>
-                </td>
-
-                <td>
-                       <?= Html::a('<img src='.Yii::getAlias('@web/img/delete.png').'>',['ticket/delete-ticket','id'=>$ticket_item->id]) ?>
+                    <td><?= Html::encode($personale->azienda); ?></td>
+                    <td><?= Html::encode($ticket_item->problema); ?></td>
+                    <td><?= Html::encode($ticket_item->stato); ?></td>
+                    <td>  
+                    <?= Html::a('<img src='.Yii::getAlias('@web/img/delete.png').'>',['ticket/delete-ticket','id'=>$ticket_item->id]) ?>
                     <?= Html::a(
     Html::img(Yii::getAlias('@web/img/pen.png')),
     ['ticket/modify-ticket', 'codiceTicket' => $ticket_item->codice_ticket]
