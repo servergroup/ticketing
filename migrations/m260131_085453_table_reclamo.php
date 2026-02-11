@@ -28,6 +28,7 @@ class m260129_165507_table_reclamo extends Migration
         'azienda'=>$this->string(),
         'id_cliente'=>$this->integer(),
         'codice_ticket'=>$this->string(),
+        'visualizzato'=>$this->string(),
             
         ]);
 

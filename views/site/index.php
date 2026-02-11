@@ -20,7 +20,7 @@ $stato = $stato ?? '—';
 <div class="dashboard-container">
 
     <!-- HERO -->
-    <div class="hero-box">
+    <div class="hero-box" onclick="window.location.href='<?= Url::to(['site/account']) ?>'">
         <div class="hero-left">
             <h1>Salve, <?= Html::encode($nome) ?></h1>
 
@@ -146,6 +146,10 @@ $stato = $stato ?? '—';
     align-items: center;
     margin-bottom: 40px;
     box-shadow: 0 6px 22px rgba(0,0,0,.15);
+}
+
+.dashboard-container :hover{
+transform: translateY(-4px);
 }
 
 .hero-left h1 {

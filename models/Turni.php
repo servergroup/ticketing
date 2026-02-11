@@ -38,6 +38,10 @@ class Turni extends \yii\db\ActiveRecord
             [['entrata', 'uscita', 'pausa','pausa'], 'safe'],
             [['id_operatore'], 'unique'],
             [['id_operatore'], 'exist', 'skipOnError' => true, 'targetClass' => User::class, 'targetAttribute' => ['id_operatore' => 'id']],
+            [['entrata'], 'date', 'format' => 'php:Y-m-d', 'skipOnEmpty' => true],
+            [['uscita'], 'date', 'format' => 'php:Y-m-d', 'skipOnEmpty' => true],
+            [['pausa'], 'date', 'format' => 'php:Y-m-d', 'skipOnEmpty' => true]
+
         ];
     }
 

@@ -16,8 +16,8 @@
             ?>
             
             <div class="image">
-                <img src=<?= Yii::getAlias('@web/img/upload/'.Yii::$app->user->identity->immagine)  ?>
-                     class="img-circle elevation-2" alt="User Image">
+                <img src='<?=Yii::getAlias('@'.Yii::$app->user->identity->immagine)?>' class="img-circle elevation-2" alt="User Image">>
+                     
             </div>
             <?php
 }else{
@@ -69,16 +69,25 @@
                     ],
 
                     [
-                        'label' => 'Gesstione utenti',
+                        'label' => 'Gestione utenti',
                         'icon' => 'fas fa-user-alt',
                         'items' => [
                     ['label' => 'Nuovo operatore/amministratore', 'icon' => 'fas fa-user-plus', 'url' => ['site/register']],
                     ['label' => 'Utenti in attesa', 'icon' => 'fas fa-user-clock', 'url' => ['admin/attese']],
                     ['label' => 'Utenti bloccati', 'icon' => 'fas fa-user-slash', 'url' => ['admin/block-user']],
-                    ['label' => 'Gestione operatori', 'icon' => 'fas fa-plus', 'url' => ['admin/gestione-dipendenti']]
-                    ]
+                        ]
+                    ],
+
+                    [
+                        'label'=>'Dipendenti',
+                        'icon'=>'fas fa-user-alt',
+                        'items'=>[
+                    ['label' => 'Gestione operatori', 'icon' => 'fas fa-plus', 'url' => ['admin/gestione-dipendenti']],
+                     ['label' => 'Verifica i ruoli', 'icon' => 'fas fa-plus', 'url' => ['admin/verify-ruolo']],
+                      ['label' => 'Tutti i reclami', 'icon' => 'fas fa-comment-dots', 'url' => ['admin/all-reclami']],
                 ]
-                ];
+                    ]
+                ];             
             }
 
             /* ============================
@@ -119,6 +128,7 @@
                     ],
 
                     ['label' => 'Reclama', 'icon' => 'fas fa-comment-dots', 'url' => ['reclamo/reclamo']],
+                    ['label' => 'I miei reclami', 'icon' => 'fas fa-comment-dots', 'url' => ['site/my-reclamo']],
                     
                 ];
             }

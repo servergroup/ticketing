@@ -68,6 +68,8 @@ use app\models\User;
     ['ticket/modify-ticket', 'codiceTicket' => $ticket_item->codice_ticket]
 ) ?>
 
+<?= Html::a('Riapri il ticket',['ticket/reintegra','codice_ticket'=>$ticket_item->codice_ticket]) ?>
+
 
                 </td>
             </tr>

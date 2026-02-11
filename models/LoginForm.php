@@ -78,7 +78,7 @@ class LoginForm extends Model
         }
 
         // RUOLI
-        if (!in_array($user->ruolo, ['amministratore', 'itc', 'cliente', 'developer'])) {
+        if (!in_array($user->ruolo, ['amministratore', 'itc', 'cliente', 'developer','personale'])) {
             return false;
         }
 

@@ -13,6 +13,7 @@ use yii\filters\VerbFilter;
 use app\models\Ticket;
 use app\models\Turni;
 use app\models\ticketFunction;
+use app\models\Reclami;
 
 class AdminController extends \yii\web\Controller
 {
@@ -168,17 +169,25 @@ public function behaviors()
         }
     }
 
-    public function actionAttese()
-    {
-        $user=User::find()->where(['approvazione'=>false])->all();
+  public function actionAttese()
+{
+    // usa $users (plurale) per evitare shadowing della variabile
+    $users = User::find()->where(['approvazione' => false])->all();
+    $function = new UserService();
+     $newUser=new User();
+      foreach ($users as $u) {
+     $user=User::findOne($u->id);
+      }
 
-        return $this->render('userInAttesa',['user'=>$user]);
-    }
+
+    return $this->render('userInAttesa', ['users' => $users]);
+}
+
 
 
     public function actionApprova($username)
     {
-           $user=User::findOne(['approvazione'=>false]);
+           $users=User::findOne(['approvazione'=>false]);
         $function=new userService();
 
         if($function->approva($username))
@@ -248,6 +257,7 @@ public function actionModifyTurni($id_operatore){
    $personale=User::findOne($id_operatore);
 $model=new Turni();
 
+
 if($model->load(Yii::$app->request->post()))
         {
             if($function->modifyTurni($id_operatore,$model->entrata,$model->uscita,$model->pausa))
@@ -264,6 +274,55 @@ if($model->load(Yii::$app->request->post()))
 }
 
 
+public function actionModifyRuolo($id)
+{
+    $user = User::findOne($id);
+    $function = new UserService();
+
+    if ($user->load(Yii::$app->request->post())) {
+
+        $ruolo = $user->ruolo;
+
+        if ($function->assegnaRuolo($id, $ruolo)) {
+            Yii::$app->session->setFlash('success', "Ruolo assegnato correttamente");
+        } else {
+            Yii::$app->session->setFlash('error', "Errore nell'assegnamento del ruolo");
+        }
+
+        return $this->redirect(['admin/attese']);
+    }
+
+    Yii::$app->session->setFlash('error', "Dati non validi");
+    return $this->redirect(['admin/attese']);
+}
+
+public function actionUpdateRuolo($id)
+{
+
+ $user = User::findOne($id);
+    $function = new UserService();
+
+     if($function->resetRuolo($id)){
+        Yii::$app->session->setFlash('success','Abbiamo resettato il ruolo per permetterle di effettuare la modifica');
+        return $this->redirect(['attese']);
+     }
+        
+        
+}
+
+public function actionVerifyRuolo()
+{
+    $user=User::find()->all();
+
+    return $this->render('viewRuoli',['user'=>$user]);
+    }
+
+    public function actionAllReclami()
+    {
+        $reclamo=Reclami::find()->all();
+
+        return $this->reclami('MyReclami',['reclamo'=>$reclamo]);
 
 
+    }
 }

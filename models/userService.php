@@ -104,7 +104,7 @@ class userService extends Model
 
 
             $file->saveAs('./img/upload/'.$fileName);
-            $user->immagine=$fileName;
+            $user->immagine='web/img/upload/'.$fileName;
         }
 
         $user->nome = $nome;
@@ -310,31 +310,57 @@ public function modifyImmagine()
 public function insertPausa($id_operatore)
 {
     $turni = Turni::findOne(['id_operatore' => $id_operatore]);
-
-    $oraAttuale = time(); // timestamp attuale
-    $inizioPausa = strtotime($turni->pausa);
-    $finePausa = $inizioPausa + 3600; // +1 ora
-
-    // Pausa per 1 ora
-    if ($oraAttuale >= $inizioPausa && $oraAttuale <= $finePausa) {
-        $turni->stato = 'In pausa';
+    if ($turni === null) {
+        return false;
     }
 
-    // Fuori servizio
-    if ($oraAttuale >= strtotime($turni->uscita)) {
-        $turni->stato = 'Fuori servizio';
-    }
+    $oraAttuale = time();
 
-    // In servizio (fascia oraria 9-18)
-    if ($oraAttuale >= strtotime('09:00:00') && $oraAttuale <= strtotime('18:00:00')) {
-        // Solo se NON è in pausa
-        if (!($oraAttuale >= $inizioPausa && $oraAttuale <= $finePausa)) {
-            $turni->stato = 'In servizio';
+    // Calcola inizio pausa (timestamp) se il valore è valido, altrimenti null
+    $inizioPausa = null;
+    if (!empty($turni->pausa)) {
+        $tsPausa = strtotime($turni->pausa);
+        if ($tsPausa !== false) {
+            // Se la pausa è una ora (es. "09:30") vogliamo il timestamp di oggi a quell'ora
+            // strtotime gestisce anche "09:30" come oggi 09:30
+            $inizioPausa = $tsPausa;
         }
+    }
+
+    // Durata pausa: 1 ora (3600 secondi) solo se $inizioPausa è definito
+    $finePausa = ($inizioPausa !== null) ? $inizioPausa + 3600 : null;
+
+    // Calcola timestamp uscita se presente e valido
+    $timestampUscita = null;
+    if (!empty($turni->uscita)) {
+        $tsUscita = strtotime($turni->uscita);
+        if ($tsUscita !== false) {
+            $timestampUscita = $tsUscita;
+        }
+    }
+
+    // Orario servizio giornaliero (oggi 09:00 - oggi 18:00)
+    $inizioServizio = strtotime('today 09:00');
+    $fineServizio = strtotime('today 18:00');
+
+    // Determina lo stato con priorità:
+    // 1) Fuori servizio (se uscita passata)
+    // 2) In pausa (se siamo nella finestra pausa)
+    // 3) In servizio (se siamo nella fascia 09-18)
+    // 4) Non in servizio (altrimenti)
+    if ($timestampUscita !== null && $oraAttuale >= $timestampUscita) {
+        $turni->stato = 'Fuori servizio';
+    } elseif ($inizioPausa !== null && $oraAttuale >= $inizioPausa && $oraAttuale <= $finePausa) {
+        $turni->stato = 'In pausa';
+    } elseif ($oraAttuale >= $inizioServizio && $oraAttuale <= $fineServizio) {
+        $turni->stato = 'In servizio';
+    } else {
+        $turni->stato = 'Non in servizio';
     }
 
     return $turni->save();
 }
+
 
 public function saltaPausa($id)
 {
@@ -352,9 +378,38 @@ public function saltaPausa($id)
 public function fuoriServizio(){
     $turni=Turni::findOne(['id_operatore'=>Yii::$app->user->identity->id]);
 
+    if(!$turni) return ;
     $turni->stato='Fuori Servizio';
 
     return $turni->save();
+}
+
+public function assegnaRuolo($id,$ruolo)
+{
+    $user=User::findOne($id);
+
+    $user->ruolo=$ruolo;
+
+    return $user->save();
+}
+
+public function resetRuolo($id)
+{
+    $user=User::findOne($id);
+
+    $user->ruolo='personale';
+
+    return $user->save();
+}
+public function modifyRuolo($id,$ruolo)
+{
+    $user=User::findOne($id);
+    $user->ruolo=$ruolo;
+    
+    
+return $user->save();
+
+
 }
 
 }

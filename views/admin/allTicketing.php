@@ -68,6 +68,14 @@ use app\models\User;
     ['ticket/modify-ticket', 'codiceTicket' => $ticket_item->codice_ticket]
 ) ?>
 
+<?php 
+if($ticket_item->stato=='aperto'){
+?>
+<?= Html::a('Manda in assegnazione',['admin/delegate','codice_ticket'=>$ticket_item->codice_ticket,'ambito'=>$ticket_item->ambito]) ?>
+<?php }else if($ticket_item->stato=='In lavorazione'){
+    ?>
+    <?= Html::a('Ritira  assegnazione',['ticket/ritiro','codice_ticket'=>$ticket_item->codice_ticket,'ambito'=>$ticket_item->ambito]) ?>
+    <?php } ?>
 
                 </td>
             </tr>

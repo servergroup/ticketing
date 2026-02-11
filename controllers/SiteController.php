@@ -17,6 +17,7 @@ use app\models\User;
 use app\models\Ticket;
 use app\models\ticketFunction;
 use app\models\Turni;
+use app\models\Reclami;
 use Exception;
 
 class SiteController extends Controller
@@ -447,6 +448,12 @@ public function actionSaltaPausa($id)
             Yii::$app->session->setFlash('error', 'Pausa  non saltata correttamente');
             return $this->refresh();
         }
+}
+
+public function actionMyReclamo(){
+    $reclamo=Reclami::find()->where(['azienda'=>Yii::$app->user->identity->azienda])->all();
+
+    return $this->render('MyReclami',['reclamo'=>$reclamo]);
 }
 
 }

@@ -15,7 +15,7 @@ class clientService extends Model
        $reclami->problema=$problema;
        $reclami->azienda=$cliente->azienda;
        $reclami->id_cliente=$cliente->id;
-
+       $reclami->visualizzato=false;
        
        if($reclami->save())
         {     

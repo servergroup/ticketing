@@ -20,7 +20,8 @@ public function behaviors()
             'class' => AccessControl::class,
             'only' => [
                 'new-ticket','my-ticket','delete-ticket','ritiro',
-                'modify-ticket','reintegra','resolve','my-reparto'
+                'modify-ticket','reintegra','resolve','my-reparto',
+                'my-reparto-open'
             ],
             'rules' => [
 
@@ -30,22 +31,22 @@ public function behaviors()
                     'actions' => ['new-ticket','my-ticket','delete-ticket','modify-ticket'],
                     'roles' => ['@'],
                     'matchCallback' => function () {
-                        return Yii::$app->user->identity->ruolo === 'cliente';
+                        return Yii::$app->user->identity->ruolo != 'developer'|| Yii::$app->user->identity->ruolo != 'ict';
                     }
                 ],
 
                 // 2️⃣ OPERATORE (azioni riservate)
                 [
                     'allow' => true,
-                    'actions' => ['ritiro','resolve','my-reparto'],
+                    'actions' => ['ritiro','resolve','my-reparto','my-reparto-open'],
                     'roles' => ['@'],
                     'matchCallback' => function () {
-                        return Yii::$app->user->identity->ruolo === 'developer';
+                        return Yii::$app->user->identity->ruolo === 'developer'|| Yii::$app->user->identity->ruolo != 'ict';
                     }
                 ],
                  [
                     'allow' => true,
-                    'actions' => ['ritiro','resolve','my-reparto'],
+                    'actions' => ['resolve','my-reparto','my-reparto-open'],
                     'roles' => ['@'],
                     'matchCallback' => function () {
                         return Yii::$app->user->identity->ruolo === 'ict';
@@ -55,7 +56,7 @@ public function behaviors()
                 // 3️⃣ AMMINISTRATORE (azioni speciali)
                 [
                     'allow' => true,
-                    'actions' => ['reintegra'],
+                    'actions' => ['reintegra','ritiro'],
                     'roles' => ['@'],
                     'matchCallback' => function () {
                         return Yii::$app->user->identity->ruolo === 'amministratore';

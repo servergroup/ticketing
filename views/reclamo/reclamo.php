@@ -51,7 +51,8 @@ if (Yii::$app->session->hasFlash('error')) {
     <?php $form = ActiveForm::begin(); ?>
 
     <?= $form->field($reclamo, 'problema')->textarea(['placeholder' => 'Descrivi il problema']) ?>
- 
+    <?= $form->field($reclamo, 'codice_ticket')->textInput(['placeholder' => 'Inserisci il codice ticket']) ?>
+    
 
 
 
@@ -132,4 +133,4 @@ if (Yii::$app->session->hasFlash('error')) {
         margin-bottom: 18px;
     }
 
-    </style
+    </style>

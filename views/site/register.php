@@ -41,9 +41,7 @@ $this->title = 'Registrazione Aziendale';
 
     <?= $form->field($user, 'ruolo')->dropDownList([
         'cliente' => 'Cliente',
-        'ict' => 'Operatore (Sistemista)',
-        'developer' => 'Operatore (Sviluppatore)',
-        'amministratore' => 'Amministratore'
+       'personale'=>'personale'
     ], ['prompt' => 'Seleziona un ruolo', 'id' => 'ruolo-select']) ?>
 
     

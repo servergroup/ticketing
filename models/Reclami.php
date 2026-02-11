@@ -35,6 +35,7 @@ class Reclami extends \yii\db\ActiveRecord
             [['problema', 'azienda', 'id_cliente'], 'default', 'value' => null],
             [['id_cliente'], 'integer'],
             [['problema', 'azienda'], 'string', 'max' => 255],
+            [['visualizzato'],'required'],
             [['id_cliente'], 'exist', 'skipOnError' => true, 'targetClass' =>User::class, 'targetAttribute' => ['id_cliente' => 'id']],
         ];
     }
