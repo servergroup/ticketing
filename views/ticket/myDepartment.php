@@ -7,11 +7,11 @@ use app\models\User;
  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
-<h1 class="text-center">Stato dei miei ticket</h1>
-<p class="text-center">Qui vedrai lo stato dei tuoi ticket</p>
+<h1 class="text-center">Stato dei ticket di reparto</h1>
+<p class="text-center">Qui vedrai lo stato dei  ticket del tuo reparto </p>
 
 <?php if (empty($ticket)): ?>
-    <p class="text-center mt-4">Non hai ancora ticket aperti.</p>
+    <p class="text-center mt-4">Nel tuo reparto non ci sono ancora dei ticket aperti</p>
 <?php else: ?>
 
 <table class="table table-bordered table-striped mt-4">

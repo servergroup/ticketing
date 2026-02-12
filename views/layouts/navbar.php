@@ -9,6 +9,7 @@ use app\models\userService;
 $this->title = '';
 
 $function = new userService();
+
 $user = User::findOne(Yii::$app->user->identity->id);
 $turni = Turni::findOne(['id_operatore' => $user->id]);
 $function->insertPausa($user->id);
@@ -60,6 +61,92 @@ if ($turni && $turni->stato == 'In pausa') {
 
  
 </nav>
+
+<?php 
+if(Yii::$app->user->identity->ruolo==='cliente')
+{
+?>
+
+<?php
+
+
+$urlMyReclamo = Url::to(['site/my-reclamo']);
+
+$js = <<<JS
+document.addEventListener('keydown', function(e) {
+
+    // ALT + R → Reclami
+    if (e.altKey && e.key === 'r') {
+        window.location.href = 'http://localhost:8000/reclamo/reclamo';
+    }
+
+    // CTRL + ALT + R → my-reclamo
+    if (e.ctrlKey && e.altKey && e.key === 'KeyR') {
+        e.preventDefault();
+        window.location.href = 'http://localhost:8000/site/my-reclamo';
+    }
+
+     // ALT + t → nuovo ticket
+    if (e.altKey && e.key === 'KeyT') {
+        e.preventDefault();
+        window.location.href = 'http://localhost:8000/ticket/new-ticket';
+    }
+
+
+    // ALT + SHIFT + T → my-ticket
+    if (e.altKey && e.shiftKey && e.code === 'KeyT') {
+        e.preventDefault();
+        window.location.href = 'http://localhost:8000/ticket/my-ticket';
+    }
+
+
+
+});
+JS;
+
+$this->registerJs($js);
+?>
+
+<?php 
+}
+?>
+
+<?php 
+if(Yii::$app->user->identity->ruolo=='developer' || Yii::$app->user->identity->ruolo=='ict')
+{
+?>
+
+<?php
+
+
+$urlMyReclamo = Url::to(['site/my-reclamo']);
+
+$js = <<<JS
+document.addEventListener('keydown', function(e) {
+
+  
+
+    if (e.altKey && e.key === 't') {
+        window.location.href = 'http://localhost:8000/ticket/view-ticket';
+    }
+
+    // CTRL + ALT + R → my-reclamo
+    if (e.ctrlKey && e.altKey && e.key === 'r') {
+        e.preventDefault();
+        window.location.href = 'http://localhost:8000/ticket/my-reparto';
+    }
+
+});
+JS;
+
+$this->registerJs($js);
+?>
+
+
+<?php 
+}
+?>
+
 
 <style>
 .logout {

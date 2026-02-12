@@ -88,7 +88,7 @@ return array (
   'yiisoft/yii2-symfonymailer' => 
   array (
     'name' => 'yiisoft/yii2-symfonymailer',
-    'version' => '2.0.4.0',
+    'version' => '3.0.0.0',
     'alias' => 
     array (
       '@yii/symfonymailer' => $vendorDir . '/yiisoft/yii2-symfonymailer/src',

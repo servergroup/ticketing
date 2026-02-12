@@ -68,6 +68,8 @@ use app\models\Ticket;
 }
 </style>
 
+<h1 class="text-center">Stato dei ticket assegnati a <?= Yii::$app->user->identity->nome ?> <?= Yii::$app->user->identity->cognome  ?></h1>
+<p class="text-center">Qui vedrai lo stato dei  ticket assegnati a <?= Yii::$app->user->identity->nome ?> <?= Yii::$app->user->identity->cognome  ?> </p>
 <div class="ticket">
     <table class="ticket-table">
         <thead>
@@ -112,12 +114,21 @@ use app\models\Ticket;
                 </td>
 
                 <td>
-                    <?php if($ticket->stato!='scaduto' || $ticket->stato !='chiuso'):?>
+                    <?php if($ticket->stato == 'In lavorazione'){?>
 
                         <td>
                             <?= Html::a('<img src="'.Yii::getAlias('@web/img/icone/support-ticket.png').'">Comunica risoluzione',['ticket/resolve','id'=>$ticket->id],['class'=>'btn btn-primary']) ?>
                         </td>
-                <?php endif;?>
+                <?php
+                }else if($ticket->stato == 'chiuso' || $ticket->stato=='risolto'){ ?>
+
+                <td>
+                    <?= Html::a('Avanza una ripaertura',['site/avanza-riapertura','codice_ticket'=>$ticket->codice_ticket,'id_operatore'=>$assegnazioni_item->id_operatore],['class'=>'btn btn-primary']); ?>
+                </td>
+
+
+                <?php } ?>
+                
                 </td>
             </tr>
         <?php endforeach; ?>

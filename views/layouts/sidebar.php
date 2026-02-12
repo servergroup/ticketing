@@ -75,6 +75,8 @@
                     ['label' => 'Nuovo operatore/amministratore', 'icon' => 'fas fa-user-plus', 'url' => ['site/register']],
                     ['label' => 'Utenti in attesa', 'icon' => 'fas fa-user-clock', 'url' => ['admin/attese']],
                     ['label' => 'Utenti bloccati', 'icon' => 'fas fa-user-slash', 'url' => ['admin/block-user']],
+                     ['label' => 'Tempi del ticket', 'icon' => 'fas fa-ticket-alt', 'url' => ['ticket/']],
+
                         ]
                     ],
 
@@ -84,16 +86,17 @@
                         'items'=>[
                     ['label' => 'Gestione operatori', 'icon' => 'fas fa-plus', 'url' => ['admin/gestione-dipendenti']],
                      ['label' => 'Verifica i ruoli', 'icon' => 'fas fa-plus', 'url' => ['admin/verify-ruolo']],
-                      ['label' => 'Tutti i reclami', 'icon' => 'fas fa-comment-dots', 'url' => ['admin/all-reclami']],
+                     
                 ]
-                    ]
+                    ],
+                     ['label' => 'Tutti i reclami', 'icon' => 'fas fa-comment-dots', 'url' => ['site/all-reclami']],
                 ];             
             }
 
-            /* ============================
-               ITC
-            ============================ */
-            else if ($ruolo === 'itc') {
+            /*  ============================
+               |            ICT             |
+                ============================ */
+            else if ($ruolo === 'ict') {
                 $menuItems = [
 
                     ['label' => 'Home', 'icon' => 'fas fa-home', 'url' => ['site/index']],
@@ -126,16 +129,20 @@
                             ['label' => 'Evoluzione ticket', 'icon' => 'fas fa-history', 'url' => ['ticket/my-ticket']],
                         ]
                     ],
-
+                    [
+                    'label'=>'reclami',
+                    'icon'=>'fas fa-comment-dots',
+                    'items'=>[
                     ['label' => 'Reclama', 'icon' => 'fas fa-comment-dots', 'url' => ['reclamo/reclamo']],
                     ['label' => 'I miei reclami', 'icon' => 'fas fa-comment-dots', 'url' => ['site/my-reclamo']],
-                    
+                    ],
+                ],
                 ];
             }
 
-            /* ============================
+            /* =============================
                DEVELOPER
-            ============================ */
+              ============================= */
             else if ($ruolo === 'developer') {
                 $menuItems = [
 

@@ -456,4 +456,37 @@ public function actionMyReclamo(){
     return $this->render('MyReclami',['reclamo'=>$reclamo]);
 }
 
+    public function actionAllReclami()
+    {
+        $reclamo=Reclami::find()->all();
+
+        return $this->render('MyReclami',['reclamo'=>$reclamo]);
+    }
+
+    public function actionVisualizzato($codice_ticket)
+    {
+        $function=new userService();
+        
+        $function->visualizzato($codice_ticket);
+
+        return $this->redirect(['my-reclamo']);
+    }
+
+    public function actionAvanzaRiapertura($codice_ticket,$id_operatore){
+        $function=new userService();
+        $cookie=Yii::$app->request->cookies;
+        if($function->avanzaRiapertura($codice_ticket,$id_operatore))
+            {
+                if($cookie->has('richiesta'))
+                    {
+                          Yii::$app->session->setFlash('error','La richiesta è sta gia\' inviata');
+                return $this->redirect(['operatore/view-ticket']);
+                    }
+                Yii::$app->session->setFlash('success','Riapertura avanzata correttamente');
+                return $this->redirect(['operatore/view-ticket']);
+            }else{
+                Yii::$app->session->setFlash('error','Riapertura non  avanzata correttamente');
+                return $this->redirect(['operatore/view-ticket']);
+            }
+    }
 }

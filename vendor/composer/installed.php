@@ -856,9 +856,9 @@
             'dev_requirement' => true,
         ),
         'yiisoft/yii2-symfonymailer' => array(
-            'pretty_version' => '2.0.4',
-            'version' => '2.0.4.0',
-            'reference' => '82f5902551a160633c4734b5096977ce76a809d9',
+            'pretty_version' => '3.0.0',
+            'version' => '3.0.0.0',
+            'reference' => '291c00979a9bf14e89bb5230ddd700a6dc130e51',
             'type' => 'yii2-extension',
             'install_path' => __DIR__ . '/../yiisoft/yii2-symfonymailer',
             'aliases' => array(),

@@ -7,41 +7,50 @@ $config = [
     'timeZone' => 'Europe/Rome',
     'id' => 'basic',
     'basePath' => dirname(__DIR__),
-     
+
     'bootstrap' => ['log'],
     'aliases' => [
         '@bower' => '@vendor/bower-asset',
         '@npm'   => '@vendor/npm-asset',
     ],
+
     'components' => [
-        
+
         'request' => [
-            // !!! insert a secret key in the following (if it is empty) - this is required by cookie validation
             'cookieValidationKey' => 't01WuOCqJYwM90-YE6WOdya_UuYUqNjO',
         ],
+
         'view' => [
-         'theme' => [
-             'pathMap' => [
-                '@app/views' => '@app/views'
-             ],
-         ],
-    ],
+            'theme' => [
+                'pathMap' => [
+                    '@app/views' => '@app/views'
+                ],
+            ],
+        ],
+
         'cache' => [
             'class' => 'yii\caching\FileCache',
         ],
+
         'user' => [
             'identityClass' => 'app\models\User',
             'enableAutoLogin' => false,
         ],
+
         'errorHandler' => [
             'errorAction' => 'site/error',
         ],
+
+        /* -------------- MAILER CORRETTO (SYMFONY MAILER) -------------- */
         'mailer' => [
             'class' => \yii\symfonymailer\Mailer::class,
-            'viewPath' => '@app/mail',
-            // send all mails to a file by default.
-            'useFileTransport' => true,
+            'useFileTransport' => false, // invia davvero
+            'transport' => [
+                'dsn' => 'smtp://macagninoriccardo85@gmail.com:atoyngbeugtmesrw@smtp.gmail.com:587?encryption=tls',
+            ],
         ],
+        /* ---------------------------------------------------------------- */
+
         'log' => [
             'traceLevel' => YII_DEBUG ? 3 : 0,
             'targets' => [
@@ -51,33 +60,29 @@ $config = [
                 ],
             ],
         ],
+
         'db' => $db,
-        
+
         'urlManager' => [
             'enablePrettyUrl' => true,
             'showScriptName' => false,
-            'rules' => [
-            ],
+            'rules' => [],
         ],
-        
     ],
+
     'params' => $params,
 ];
 
 if (YII_ENV_DEV) {
-    // configuration adjustments for 'dev' environment
     $config['bootstrap'][] = 'debug';
     $config['modules']['debug'] = [
         'class' => 'yii\debug\Module',
-        // uncomment the following to add your IP if you are not connecting from localhost.
-        //'allowedIPs' => ['127.0.0.1', '::1'],
     ];
 
     $config['bootstrap'][] = 'gii';
     $config['modules']['gii'] = [
         'class' => 'yii\gii\Module',
-        // uncomment the following to add your IP if you are not connecting from localhost.
-        'allowedIPs' => ['127.0.0.1', '::1','*'],
+        'allowedIPs' => ['127.0.0.1', '::1', '*'],
     ];
 }
 

@@ -14,6 +14,7 @@ use app\models\Ticket;
 use app\models\Turni;
 use app\models\ticketFunction;
 use app\models\Reclami;
+use app\models\TempiTicket;
 
 class AdminController extends \yii\web\Controller
 {
@@ -147,6 +148,7 @@ public function behaviors()
     {
         // Classe che contiene la logica di assegnazione dei ticket
         $function = new ticketFunction();
+    
 
         if($function->random_num($ambito)==null){
             Yii::$app->session->setFlash('error','Nessun developer è al momento disponibile per la risoluzione del ticket');
@@ -160,7 +162,7 @@ public function behaviors()
 
         // Prova ad assegnare il ticket
         if ($function->assegnaTicket($codice_ticket, $ambito)) {
-            Yii::$app->session->setFlash('success', 'Ticket assegnato a qualcuno');
+            Yii::$app->session->setFlash('success', 'Ticket assegnato correttamente');
             return $this->redirect(['ticketing']);
         } else {
             // Se l'assegnazione fallisce
@@ -317,12 +319,13 @@ public function actionVerifyRuolo()
     return $this->render('viewRuoli',['user'=>$user]);
     }
 
-    public function actionAllReclami()
+    public function actionTempi()
     {
-        $reclamo=Reclami::find()->all();
+        $tempi=TempiTicket::find()->all();
 
-        return $this->reclami('MyReclami',['reclamo'=>$reclamo]);
+        return $this->render('TimeTicket',['tempi'=>$tempi]);
+    }
+
 
 
     }
-}
