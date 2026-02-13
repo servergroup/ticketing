@@ -15,7 +15,7 @@ LogAsset::register($this);
         <div class="login-card-body">
 
             <p class="login-box-msg">
-               <img src="<?= Yii::getAlias('@web/img/taglio_dataseed.svg') ?>" style='width:180px; height:110px;'>
+               <img src="<?= Yii::getAlias('@web/img/taglio_dataseed.svg') ?>">
             </p>
 
             <h1 class="text-center mb-4">Accedi</h1>
@@ -71,38 +71,53 @@ LogAsset::register($this);
 </div>
 
 <style>
+
+/* ===== Layout generale ===== */
 body.login-page {
-    background: #f4f6f9;
+    background-color: #f4f6f9;
     font-family: "Segoe UI", Roboto, Arial, sans-serif;
+    margin: 0;
+    min-height: 100vh;
+
+    /* Flex per centro verticale + orizzontale */
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
-/* Box login */
+/* ===== Box login ===== */
 .login-box {
     width: 420px;
-    max-width: 92%;
-    margin: 60px auto;
+    max-width: 90%;
+    margin: 0 auto;
+    margin-top:150px;
 }
 
-/* Card */
+/* ===== Card ===== */
 .card {
+    background-color: #ffffff;
     border-radius: 12px;
     border: 1px solid #e1e1e1;
-    box-shadow: 0 4px 18px rgba(0,0,0,0.08);
-    background: #ffffff;
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.08);
 }
 
+/* ===== Contenuto card ===== */
 .login-card-body {
     padding: 30px;
 }
 
-/* Icona sopra */
+/* ===== Logo ===== */
 .login-box-msg {
-    font-size: 22px;
-    color: #2c3e50;
     text-align: center;
+    margin-bottom: 20px;
 }
 
-/* Input */
+.login-box-msg img {
+    width: 110px;
+    height: auto;
+}
+
+/* ===== Input ===== */
 .input-group .form-control {
     border-radius: 6px 0 0 6px;
     border: 1px solid #cfcfcf;
@@ -111,7 +126,7 @@ body.login-page {
 }
 
 .input-group-text {
-    background: #f0f0f0;
+    background-color: #f0f0f0;
     border: 1px solid #cfcfcf;
     border-left: none;
     border-radius: 0 6px 6px 0;
@@ -123,14 +138,14 @@ body.login-page {
     background-image: none !important;
 }
 
-/* Pulsante */
+/* ===== Pulsante ===== */
 .btn-primary {
     background-color: #0066cc;
     border-color: #005bb5;
     padding: 10px 18px;
     font-size: 15px;
     border-radius: 6px;
-    transition: 0.25s;
+    transition: all 0.25s ease;
 }
 
 .btn-primary:hover {
@@ -138,23 +153,25 @@ body.login-page {
     border-color: #004f9e;
     transform: translateY(-2px);
     box-shadow: 0 6px 14px rgba(0, 102, 204, 0.25);
-    
 }
 
-/* Link */
+/* ===== Link ===== */
 .login-card-body a {
     color: #0066cc;
     font-weight: 500;
+    text-decoration: none;
 }
 
 .login-card-body a:hover {
     text-decoration: underline;
 }
 
-/* Responsive */
+/* ===== Responsive ===== */
 @media (max-width: 480px) {
     .login-card-body {
         padding: 20px;
     }
 }
+
+
 </style>

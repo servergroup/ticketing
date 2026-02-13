@@ -9,7 +9,7 @@ class TicketAsset extends AssetBundle
 
     public $css = [
        
-        'css/ticket.css'
+     
         
     ];
 

@@ -98,13 +98,13 @@ class ticketFunction extends Model
 
         if ($ticket->save()) {
             // NOTA: non viene creato alcun record in tempi_ticket qui (richiesto dall'utente)
-            foreach ($admins as $admin) {
+           /* foreach ($admins as $admin) {
                 $this->contact(
                     $admin->email,
                     '<p>Nuovo ticket in arrivo<br>Codice ticket: ' . $ticket->codice_ticket . '<br>Richiesta: ' . $ticket->problema . '<br>Azienda richiedente: ' . $cliente->azienda . '</p>',
                     'Nuovo ticket in arrivo'
                 );
-            }
+            }*/
             return true;
         }
 

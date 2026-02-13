@@ -193,7 +193,7 @@ return $this->render('index', [
     public function actionContact()
     {
         $model = new ContactForm();
-        if ($model->load(Yii::$app->request->post()) && $model->contact(Yii::$app->params['adminEmail'], 'b')) {
+        if ($model->load(Yii::$app->request->post()) && $model->contact()) {
             Yii::$app->session->setFlash('contactFormSubmitted');
 
             return $this->refresh();
@@ -469,7 +469,7 @@ public function actionMyReclamo(){
         
         $function->visualizzato($codice_ticket);
 
-        return $this->redirect(['my-reclamo']);
+        return $this->redirect(['all-reclami']);
     }
 
     public function actionAvanzaRiapertura($codice_ticket,$id_operatore){

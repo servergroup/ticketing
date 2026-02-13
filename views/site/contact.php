@@ -1,60 +1,53 @@
 <?php
 
-/** @var yii\web\View $this */
-/** @var yii\bootstrap5\ActiveForm $form */
-/** @var app\models\ContactForm $model */
-
 use yii\bootstrap5\ActiveForm;
 use yii\bootstrap5\Html;
-use yii\captcha\Captcha;
 
-$this->title = 'Contact';
+$this->title = 'Contattaci';
 $this->params['breadcrumbs'][] = $this->title;
 ?>
+
 <div class="site-contact">
-    <h1><?= Html::encode($this->title) ?></h1>
+
+    <h1 class="mb-4"><?= Html::encode($this->title) ?></h1>
 
     <?php if (Yii::$app->session->hasFlash('contactFormSubmitted')): ?>
 
-        <div class="alert alert-success">
-            Thank you for contacting us. We will respond to you as soon as possible.
+        <div class="alert alert-success shadow-sm">
+            La tua richiesta è stata inviata correttamente.  
+            Ti risponderemo il prima possibile.
         </div>
-
-        <p>
-            Note that if you turn on the Yii debugger, you should be able
-            to view the mail message on the mail panel of the debugger.
-            <?php if (Yii::$app->mailer->useFileTransport): ?>
-                Because the application is in development mode, the email is not sent but saved as
-                a file under <code><?= Yii::getAlias(Yii::$app->mailer->fileTransportPath) ?></code>.
-                Please configure the <code>useFileTransport</code> property of the <code>mail</code>
-                application component to be false to enable email sending.
-            <?php endif; ?>
-        </p>
 
     <?php else: ?>
 
-        <p>
-            If you have business inquiries or other questions, please fill out the following form to contact us.
-            Thank you.
+        <p class="text-muted mb-4">
+            Per informazioni commerciali, assistenza o richieste generiche, compila il modulo seguente.  
+            Il nostro team ti contatterà al più presto.
         </p>
 
         <div class="row">
-            <div class="col-lg-5">
+            <div class="col-lg-6">
 
                 <?php $form = ActiveForm::begin(['id' => 'contact-form']); ?>
 
-                    <?= $form->field($model, 'name')->textInput(['autofocus' => true]) ?>
+                    <?= $form->field($model, 'name')
+                        ->textInput(['placeholder' => 'Il tuo nome', 'class' => 'form-control form-control-lg'])
+                        ->label('Nome') ?>
 
-                    <?= $form->field($model, 'email') ?>
+                 
+                    <?= $form->field($model, 'subject')
+                        ->textInput(['placeholder' => 'Oggetto della richiesta', 'class' => 'form-control form-control-lg'])
+                        ->label('Oggetto') ?>
 
-                    <?= $form->field($model, 'subject') ?>
+                    <?= $form->field($model, 'body')
+                        ->textarea(['rows' => 6, 'placeholder' => 'Scrivi qui il tuo messaggio...', 'class' => 'form-control form-control-lg'])
+                        ->label('Messaggio') ?>
 
-                    <?= $form->field($model, 'body')->textarea(['rows' => 6]) ?>
-
-                  
-
-                    <div class="form-group">
-                        <?= Html::submitButton('Contattaci', ['class' => 'btn btn-primary', 'name' => 'contact-button']) ?>
+                    <div class="form-group mt-4">
+                        <?= Html::submitButton('Invia richiesta', [
+                            'class' => 'btn btn-primary btn-lg px-4 shadow-sm',
+                            'name' => 'contact-button'
+                        ]) ?>
                     </div>
 
                 <?php ActiveForm::end(); ?>
@@ -64,3 +57,38 @@ $this->params['breadcrumbs'][] = $this->title;
 
     <?php endif; ?>
 </div>
+
+<style>
+.site-contact h1 {
+    font-weight: 600;
+    color: #1a1a1a;
+}
+
+.site-contact p {
+    font-size: 16px;
+}
+
+.form-control-lg {
+    border-radius: 8px;
+    padding: 14px;
+    font-size: 16px;
+}
+
+.btn-primary {
+    background-color: #0056b3;
+    border-color: #004a99;
+    border-radius: 8px;
+    transition: 0.2s ease-in-out;
+}
+
+.btn-primary:hover {
+    background-color: #004a99;
+    border-color: #003d80;
+    transform: translateY(-2px);
+}
+
+.alert-success {
+    font-size: 16px;
+    border-radius: 8px;
+}
+</style>

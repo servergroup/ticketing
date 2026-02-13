@@ -14,7 +14,7 @@ class ReclamoController extends \yii\web\Controller
         $function = new clientService();
 
         if ($reclamo->load(Yii::$app->request->post())) {
-            if ($function->reclami($reclamo->problema)) {
+            if ($function->reclami($reclamo->problema,$reclamo->codice_ticket)) {
                 Yii::$app->session->setFlash('success', 'Reclamo inviato correttamente');
                 return $this->redirect(['site/index']);
             } else {

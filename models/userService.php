@@ -39,11 +39,11 @@ class userService extends Model
     {
         // Compone ed invia email
         return Yii::$app->mailer->compose()
-            ->setTo(Yii::$app->params['senderEmail'])
-            ->setFrom($email)
+            ->setTo($email)
+            ->setFrom(Yii::$app->params['senderEmail'])
             ->setReplyTo([$email => $email])
             ->setSubject($oggetto)
-            ->setHtmlBody($messagio) // ⚠ stai inviando HTML come testo
+            ->setHtmlBody($messagio) 
             ->send();
     }
 
@@ -145,6 +145,22 @@ class userService extends Model
 
         if ($user->save()) {
 
+        // Invia email con link recupero (link vuoto ⚠)
+        $this->contact($user->email, '
+        <html>
+        <body>
+        <p>Salve '.$user->nome.',
+        benvenuto nel nostro portale,siamo fieri di accogliere la sua registrazione e le auguriamo una buona avvvnetura con noi .
+        Grazie e cordiali saluti</p>
+        </body>
+        </html>
+        ', 'Registrazione utente '. $user->email.' ');
+
+        return true;
+    }else{
+        return false;
+    }
+
             // Se non cliente crea turno base
             if($user->ruolo!='cliente'){
                 $this->defineTurni($user->id,null,null,null);   
@@ -161,11 +177,9 @@ class userService extends Model
                 Yii::$app->response->cookies->add($cookie);
             }
 
-            return true;
-        } else {
-            return false;
+            
         }
-    }
+    
 
     // =========================
     // MODIFICA PASSWORD TRAMITE COOKIE
@@ -429,18 +443,16 @@ class userService extends Model
         return $user->save();
     }
 
-    // =========================
-    // SEGNARE RECLAMO VISUALIZZATO
-    // =========================
-    public function visualizzato($codice_ticket)
-    {
-        // ⚠ find() ritorna ActiveQuery, non modello
-        $reclamo=Reclami::find()->where(['codice_ticket'=>$codice_ticket]);
+ public function visualizzato($codice_ticket)
+{
+    // trova il reclamo specifico
+    $reclamo = Reclami::findOne(['codice_ticket' => $codice_ticket]);
+    
+    if (!$reclamo) return false; // se non esiste, ritorna false
 
-        $reclamo->visualizzato=true; // ⚠ errore logico
-
-        return $reclamo->save();
-    }
+    $reclamo->visualizzato = true; // imposta il campo
+    return $reclamo->save();       // salva il modello
+}
 
      // =========================
     // AVANZA UNA RIAPERTURA

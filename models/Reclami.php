@@ -32,7 +32,7 @@ class Reclami extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['problema', 'azienda', 'id_cliente'], 'default', 'value' => null],
+            [['problema', 'azienda', 'id_cliente','codice_ticket'], 'default', 'value' => null],
             [['id_cliente'], 'integer'],
             [['problema', 'azienda'], 'string', 'max' => 255],
             [['visualizzato'],'required'],
@@ -50,6 +50,7 @@ class Reclami extends \yii\db\ActiveRecord
             'problema' => 'Problema',
             'azienda' => 'Azienda',
             'id_cliente' => 'Id Cliente',
+            'visualizzato'=>'Visulizzato'
         ];
     }
 

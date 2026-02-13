@@ -98,7 +98,7 @@ public function behaviors()
 
         if ($ticket->load(Yii::$app->request->post())) {
             try{
-        if($function->verifyData($ticket->scadenza))
+        /*if($function->verifyData($ticket->scadenza))
             {
              
             }
@@ -109,7 +109,7 @@ public function behaviors()
                     "È stato inviato un sollecito ai nostri esperti che, al più presto, si occuperanno del suo ticket. Ci scusiamo per il disagio."
                 );
             }
-
+*/
 
             // Creazione nuovo ticket
             if ($function->newTicket(
@@ -129,10 +129,10 @@ public function behaviors()
                     Contattare l'azienda e riferire il problema. Ci scusiamo per il disagio."
                 );
 
-                return $this->redirect(['new-ticket']);
+               // return $this->redirect(['new-ticket']);
             }
 
-            return $this->redirect(['newTicket']);
+           
         }catch(dataException $e){
                Yii::$app->session->setFlash('success','La data inserita risulta essere nel passato');
                 return $this->refresh();

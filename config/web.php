@@ -3,12 +3,13 @@
 $params = require __DIR__ . '/params.php';
 $db = require __DIR__ . '/db.php';
 
-$config = [
-    'timeZone' => 'Europe/Rome',
-    'id' => 'basic',
+return [
+    'id' => 'ticketing',
     'basePath' => dirname(__DIR__),
+    'timeZone' => 'Europe/Rome',
 
     'bootstrap' => ['log'],
+
     'aliases' => [
         '@bower' => '@vendor/bower-asset',
         '@npm'   => '@vendor/npm-asset',
@@ -16,41 +17,51 @@ $config = [
 
     'components' => [
 
-        'request' => [
-            'cookieValidationKey' => 't01WuOCqJYwM90-YE6WOdya_UuYUqNjO',
-        ],
+        /* ================= DATABASE ================= */
+        'db' => $db,
 
-        'view' => [
-            'theme' => [
-                'pathMap' => [
-                    '@app/views' => '@app/views'
-                ],
-            ],
-        ],
-
+        /* ================= CACHE ================= */
         'cache' => [
             'class' => 'yii\caching\FileCache',
         ],
 
+        /* ================= REQUEST ================= */
+        'request' => [
+            'cookieValidationKey' => 't01WuOCqJYwM90-YE6WOdya_UuYUqNjO',
+        ],
+
+        /* ================= USER ================= */
         'user' => [
             'identityClass' => 'app\models\User',
             'enableAutoLogin' => false,
+            'enableSession' => true,
         ],
 
+        /* ================= ERROR HANDLER ================= */
         'errorHandler' => [
             'errorAction' => 'site/error',
         ],
 
-        /* -------------- MAILER CORRETTO (SYMFONY MAILER) -------------- */
+        /* ================= MAILER (GMAIL SMTP) ================= */
         'mailer' => [
             'class' => \yii\symfonymailer\Mailer::class,
-            'useFileTransport' => false, // invia davvero
+            'useFileTransport' => false,
             'transport' => [
                 'dsn' => 'smtp://macagninoriccardo85@gmail.com:atoyngbeugtmesrw@smtp.gmail.com:587?encryption=tls',
             ],
         ],
-        /* ---------------------------------------------------------------- */
 
+        /* ================= URL MANAGER ================= */
+        'urlManager' => [
+            'enablePrettyUrl' => true,
+            'showScriptName' => false,
+            'enableStrictParsing' => false,
+            'rules' => [
+                'site/visualizzato/<codice_ticket>' => 'site/visualizzato',
+            ],
+        ],
+
+        /* ================= LOG (LEGGERO) ================= */
         'log' => [
             'traceLevel' => YII_DEBUG ? 3 : 0,
             'targets' => [
@@ -60,30 +71,7 @@ $config = [
                 ],
             ],
         ],
-
-        'db' => $db,
-
-        'urlManager' => [
-            'enablePrettyUrl' => true,
-            'showScriptName' => false,
-            'rules' => [],
-        ],
     ],
 
     'params' => $params,
 ];
-
-if (YII_ENV_DEV) {
-    $config['bootstrap'][] = 'debug';
-    $config['modules']['debug'] = [
-        'class' => 'yii\debug\Module',
-    ];
-
-    $config['bootstrap'][] = 'gii';
-    $config['modules']['gii'] = [
-        'class' => 'yii\gii\Module',
-        'allowedIPs' => ['127.0.0.1', '::1', '*'],
-    ];
-}
-
-return $config;

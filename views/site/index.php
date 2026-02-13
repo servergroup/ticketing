@@ -5,7 +5,9 @@ use app\models\Turni;
 /** @var app\models\User $user */
 /** @var int $countTicket */
 /** @var string|null $stato */
-
+if($countTicket>0):
+/** @var app\models\Ticket $ultimoTicket */
+endif;
 
 
 $ruolo = $user->ruolo;
@@ -13,9 +15,15 @@ $nome  = Yii::$app->user->identity->nome;
 
 // Stato di fallback
 $stato = $stato ?? '—';
+
+defined('YII_DEBUG') or define('YII_DEBUG', false);
+defined('YII_ENV') or define('YII_ENV', 'prod');
+
 ?>
 
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
 
 <div class="dashboard-container">
 
@@ -54,14 +62,20 @@ $stato = $stato ?? '—';
                 </div>
             </div>
 
-            <div class="stat-card" onclick="window.location.href='<?= \yii\helpers\Url::to(['ticket/my-ticket']) ?>'">
-                <div class="stat-icon green"><i class="fas fa-flag"></i></div>
-                <div class="stat-info">
-                    <h3><?= Html::encode($stato) ?></h3>
-                    <p>Stato ultimo ticket</p>
-                </div>
-            </div>
+            <?php if($countTicket>0): ?>
+          <div class="stat-card" data-bs-toggle="modal" data-bs-target="#ticketModal">
+    <div class="stat-icon green"><i class="fas fa-flag"></i></div>
+    <div class="stat-info">
+        <h3><?= Html::encode($stato) ?></h3>
+        <p>Stato ultimo ticket</p>
+    </div>
+</div>
 
+
+
+           
+<?php endif; ?>
+            <!-- fine modal  !-->
         <?php elseif ($ruolo === 'developer' || $ruolo === 'ict'): ?>
 
           
@@ -126,6 +140,35 @@ $stato = $stato ?? '—';
         </div>
     <?php endif; ?>
 
+</div>
+
+ <!-- inizio modal !-->
+
+            <div class="modal fade" id="ticketModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Stato ultimo ticket</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body">
+        <!-- Qui puoi caricare contenuto statico o dinamico -->
+         <p>Id: <strong><?= Html::encode($ultimoTicket->id) ?></strong></p>
+         <p>problema: <strong><?= Html::encode($ultimoTicket->problema) ?></strong></p>
+        <p>Stato: <strong><?= Html::encode($ultimoTicket->stato) ?></strong></p>
+        <p>Codice ticket: <strong><?= Html::encode($ultimoTicket->codice_ticket) ?></strong></p>
+         <p>Data di invio del ticket: <strong><?= Html::encode($ultimoTicket->data_invio) ?></strong></p>
+
+        <!-- Oppure puoi caricare via AJAX -->
+        <!-- <div id="modal-content"></div> -->
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Chiudi</button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- STILE AZIENDALE -->

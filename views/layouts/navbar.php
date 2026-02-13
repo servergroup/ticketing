@@ -1,18 +1,18 @@
 <?php
 
 use yii\helpers\Html;
-use app\models\User;
-use app\models\Turni;
 use yii\helpers\Url;
-use app\models\userService;
+
+/* 
+    IMPORTANTE:
+    - $turni deve essere passato dal controller tramite:
+      Yii::$app->view->params['turni']
+*/
+
+$user = Yii::$app->user->identity;
+$turni = Yii::$app->view->params['turni'] ?? null;
 
 $this->title = '';
-
-$function = new userService();
-
-$user = User::findOne(Yii::$app->user->identity->id);
-$turni = Turni::findOne(['id_operatore' => $user->id]);
-$function->insertPausa($user->id);
 
 ?>
 
@@ -31,126 +31,26 @@ $function->insertPausa($user->id);
                 <span class="nav-link page-title"><?= Html::encode($this->title) ?></span>
             </li>
         </ul>
-    
     </nav>
 
     <div style="width: 32px;"></div>
 
     <?php if ($turni): ?>
-
-        <?php if ($turni->stato == 'In pausa' && Yii::$app->user->identity->ruolo != 'cliente'): ?>
-            <?= Html::a('Torna in servizio', ['site/salta-pausa', 'id' => $user->id], ['class' => 'btn btn-primary']) ?>
+        <?php if ($turni->stato == 'In pausa' && $user->ruolo != 'cliente'): ?>
+            <?= Html::a(
+                'Torna in servizio',
+                ['site/salta-pausa', 'id' => $user->id],
+                ['class' => 'btn btn-primary']
+            ) ?>
         <?php endif; ?>
-
-       
     <?php endif; ?>
- <?= Html::a(
-            '<img src="'.Yii::getAlias('@web/img/logout.png').'" style="width:50px;">',
-            ['site/logout'],
-            ['class' => 'logout']
-        ) ?>
+
+    <?= Html::a(
+        '<img src="'.Yii::getAlias('@web/img/logout.png').'" style="width:50px;">',
+        ['site/logout'],
+        ['class' => 'logout']
+    ) ?>
 
 <?php endif; ?>
 
-<?php
-if ($turni && $turni->stato == 'In pausa') {
-    Yii::$app->session->setFlash('info', 'Sei in pausa');
-    $turni->save();
-}
-?>
-
- 
 </nav>
-
-<?php 
-if(Yii::$app->user->identity->ruolo==='cliente')
-{
-?>
-
-<?php
-
-
-$urlMyReclamo = Url::to(['site/my-reclamo']);
-
-$js = <<<JS
-document.addEventListener('keydown', function(e) {
-
-    // ALT + R → Reclami
-    if (e.altKey && e.key === 'r') {
-        window.location.href = 'http://localhost:8000/reclamo/reclamo';
-    }
-
-    // CTRL + ALT + R → my-reclamo
-    if (e.ctrlKey && e.altKey && e.key === 'KeyR') {
-        e.preventDefault();
-        window.location.href = 'http://localhost:8000/site/my-reclamo';
-    }
-
-     // ALT + t → nuovo ticket
-    if (e.altKey && e.key === 'KeyT') {
-        e.preventDefault();
-        window.location.href = 'http://localhost:8000/ticket/new-ticket';
-    }
-
-
-    // ALT + SHIFT + T → my-ticket
-    if (e.altKey && e.shiftKey && e.code === 'KeyT') {
-        e.preventDefault();
-        window.location.href = 'http://localhost:8000/ticket/my-ticket';
-    }
-
-
-
-});
-JS;
-
-$this->registerJs($js);
-?>
-
-<?php 
-}
-?>
-
-<?php 
-if(Yii::$app->user->identity->ruolo=='developer' || Yii::$app->user->identity->ruolo=='ict')
-{
-?>
-
-<?php
-
-
-$urlMyReclamo = Url::to(['site/my-reclamo']);
-
-$js = <<<JS
-document.addEventListener('keydown', function(e) {
-
-  
-
-    if (e.altKey && e.key === 't') {
-        window.location.href = 'http://localhost:8000/ticket/view-ticket';
-    }
-
-    // CTRL + ALT + R → my-reclamo
-    if (e.ctrlKey && e.altKey && e.key === 'r') {
-        e.preventDefault();
-        window.location.href = 'http://localhost:8000/ticket/my-reparto';
-    }
-
-});
-JS;
-
-$this->registerJs($js);
-?>
-
-
-<?php 
-}
-?>
-
-
-<style>
-.logout {
-    width: 100px;
-    height: 100px;
-}
-</style>

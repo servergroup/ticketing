@@ -10,7 +10,7 @@ $this->title = 'Registrazione Aziendale';
 
     <!-- LOGO AZIENDALE -->
     <div class="logo-container">
-        <img src="<?= Yii::getAlias('@web/img/logo.png') ?>" alt="Logo Aziendale" class="company-logo">
+        <img src="<?= Yii::getAlias('@web/img/taglio_dataseed.svg') ?>" alt="Logo Aziendale" class="company-logo">
     </div>
 
     <h1>Registrazione Aziendale</h1>

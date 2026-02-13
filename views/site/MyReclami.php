@@ -1,8 +1,8 @@
 <?php 
 
 use yii\helpers\Html;
-use app\models\User;
 use yii\helpers\Url;
+use app\models\User;
 
 /** @var app\models\Reclamo[] $reclamo */
 
@@ -29,9 +29,14 @@ use yii\helpers\Url;
 
         <tbody>
             <?php foreach ($reclamo as $reclamo_item): ?>
+                
                 <?php 
                     $personale = User::findOne($reclamo_item->id_cliente);
-                    $modalId = 'modalReclamo-' . (int)$reclamo_item->id;
+                    $modalId = 'modalReclamo-' . $reclamo_item->id;
+                    $urlVisualizzato = Url::to(
+                        ['site/visualizzato', 'codice_ticket' => $reclamo_item->codice_ticket],
+                        true
+                    );
                 ?>
 
                 <tr>
@@ -41,7 +46,6 @@ use yii\helpers\Url;
                     <td><?= Html::encode($reclamo_item->azienda) ?></td>
 
                     <td>
-                        <!-- Bottone che apre la modal -->
                         <button type="button" 
                                 class="btn btn-link p-0" 
                                 data-bs-toggle="modal" 
@@ -49,13 +53,13 @@ use yii\helpers\Url;
                             <?= Html::encode($reclamo_item->problema) ?>
                         </button>
 
-                        <!-- Modal -->
-                        <div class="modal fade" id="<?= $modalId ?>" tabindex="-1" aria-labelledby="<?= $modalId ?>Label" aria-hidden="true">
+                        <!-- MODALE -->
+                        <div class="modal fade" id="<?= $modalId ?>" tabindex="-1" aria-hidden="true">
                             <div class="modal-dialog">
                                 <div class="modal-content">
 
                                     <div class="modal-header">
-                                        <h5 class="modal-title" id="<?= $modalId ?>Label">
+                                        <h5 class="modal-title">
                                             Dettaglio Reclamo #<?= Html::encode($reclamo_item->id) ?>
                                         </h5>
                                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
@@ -64,6 +68,7 @@ use yii\helpers\Url;
                                     <div class="modal-body">
                                         <p><strong>ID Reclamo:</strong> <?= Html::encode($reclamo_item->id) ?></p>
                                         <p><strong>Azienda:</strong> <?= Html::encode($reclamo_item->azienda) ?></p>
+
                                         <p><strong>Problema:</strong></p>
                                         <div class="alert alert-secondary">
                                             <?= nl2br(Html::encode($reclamo_item->problema)) ?>
@@ -78,8 +83,17 @@ use yii\helpers\Url;
                                     </div>
 
                                     <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" onclick="window.location.href='<?= Url::to(['site/visualizzato','codice_ticket'=>$reclamo_item->codice_ticket]) ?>'">Chiudi</button>
+                                        <?php if(Yii::$app->user->identity->ruolo=='developer' || Yii::$app->user->identity->ruolo=='ict' || Yii::$app->user->identity->ruolo=='amministratore'){?>
+                                        <!-- BOTTONE CHIUDI + REDIRECT SICURO -->
+                                       <?= Html::a('Chiudi',['site/visualizzato','codice_ticket'=>$reclamo_item->codice_ticket]) ?>
+
                                     </div>
+                                    <?php 
+                                        }else{
+                                    ?>
+                                    <?php 
+                                        }
+                                    ?>
 
                                 </div>
                             </div>
