@@ -144,29 +144,50 @@ public function behaviors()
         ]);
     }
 
+public function actionMyTicket()
+{
+    $utente = Yii::$app->user->identity;
 
-    public function actionMyTicket()
-    {
-        $cliente = User::findOne(['username' => Yii::$app->user->identity->username]);
-
-        $ticket = Ticket::find()
-            ->where(['id_cliente' => $cliente->id])
-            ->all();
-
-
-        $count = Ticket::find()
-            ->where(['id_cliente' => $cliente->id])
-            ->count();
-
-        if ($count == 0) {
-            Yii::$app->session->setFlash('error', 'Non hai ancora creato nessun ticket');
-            return $this->redirect(['ticket/new-ticket']);
-        }
-
-        return $this->render('myTicket', [
-            'ticket' => $ticket
-        ]);
+    if (!$utente) {
+        throw new \yii\web\ForbiddenHttpException('Utente non autenticato.');
     }
+
+    $cliente = User::findOne(['username' => $utente->username]);
+
+    if (!$cliente) {
+        Yii::$app->session->setFlash('error', 'Utente non trovato.');
+        return $this->redirect(['site/index']);
+    }
+
+    $searchTicket = new Ticket();
+
+    // Query base
+    $query = Ticket::find()
+        ->where(['id_cliente' => $cliente->id])
+        ->with('cliente');
+
+    // LIVE SEARCH via AJAX
+    if (Yii::$app->request->isAjax) {
+        $searchTicket->load(Yii::$app->request->post());
+        $query->andFilterWhere(['like', 'codice_ticket', $searchTicket->codice_ticket]);
+        $tickets = $query->all();
+        return $this->renderAjax('_ticketTable', ['ticket' => $tickets]);
+    }
+
+    // Visualizzazione normale
+    $ticket = $query->all();
+
+    if (empty($ticket)) {
+        Yii::$app->session->setFlash('error', 'Non hai ancora creato nessun ticket.');
+        return $this->redirect(['ticket/new-ticket']);
+    }
+
+    return $this->render('myTicket', [
+        'ticket' => $ticket,
+        'searchTicket' => $searchTicket
+    ]);
+}
+
 
     public function actionDeleteTicket($id)
     {

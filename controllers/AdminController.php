@@ -72,77 +72,112 @@ public function behaviors()
      */
 
 
-    public function actionTicketing()
-    {
-        // Modello usato solo per ricevere i dati del form di ricerca
-        $searchTicket = new Ticket();
+public function actionTicketing()
+{
+    $searchTicket = new Ticket();
 
-        // Recupera tutti i ticket (visualizzazione iniziale)
-        $ticket = Ticket::find()->all();
+    // Creiamo la query base
+    $query = Ticket::find()->with('cliente'); // Assicurati che 'cliente' sia la relazione verso User
 
-      
-        // Se il form è stato inviato e i dati sono stati caricati nel modello
-        if ($searchTicket->load(Yii::$app->request->post()))
-        {
-            // Filtra i ticket cercando quelli con il codice inserito
-            // findAll restituisce SEMPRE un array → perfetto per il foreach
-            $ticket = Ticket::findAll(['codice_ticket' => $searchTicket->codice_ticket]);
+    // Filtra per live search se arriva AJAX
+    if (Yii::$app->request->isAjax && $searchTicket->load(Yii::$app->request->post())) {
+        $query->andFilterWhere(['like', 'codice_ticket', $searchTicket->codice_ticket]);
+        $tickets = $query->all();
+        return $this->renderAjax('_ticketTable', ['ticket' => $tickets]);
+    }
 
-            // Se il campo è vuoto, torna a mostrare tutti i ticket
-            if ($searchTicket->codice_ticket == null || $searchTicket->codice_ticket == '')
-            {
-                $ticket = Ticket::find()->all();
-            }
+    // Visualizzazione normale
+    $ticket = $query->all();
 
-            
-        }
+    return $this->render('allTicketing', [
+        'ticket' => $ticket,
+        'searchTicket' => $searchTicket
+    ]);
+}
 
-        // Passa alla vista sia i ticket (filtrati o meno) sia il modello del form
-        return $this->render('allTicketing', [
-            'ticket' => $ticket,
-            'searchTicket' => $searchTicket
+
+
+public function actionScaduto()
+{
+    $searchTicket = new Ticket(); // Modello per il form
+    $query = Ticket::find()->where(['stato' => 'scaduto']);
+
+    if ($searchTicket->load(Yii::$app->request->post()) && $searchTicket->codice_ticket) {
+        $query->andWhere(['codice_ticket' => $searchTicket->codice_ticket]);
+    }
+
+    $ticket = $query->all();
+
+    if (empty($ticket)) {
+        Yii::$app->session->setFlash('error', 'Al momento non è stato rilevato alcun ticket scaduto');
+        return $this->redirect(['site/index']);
+    }
+
+    return $this->render('allTicketScadence', [
+        'ticket' => $ticket,
+        'searchTicket' => $searchTicket
+    ]);
+}
+
+public function actionChiuso()
+{
+    $searchTicket = new Ticket(); // Modello per il form
+    $query = Ticket::find()->where(['stato' => 'chiuso']);
+
+    if ($searchTicket->load(Yii::$app->request->post()) && $searchTicket->codice_ticket) {
+        $query->andWhere(['codice_ticket' => $searchTicket->codice_ticket]);
+    }
+
+    $ticket = $query->all();
+
+    if (empty($ticket)) {
+        Yii::$app->session->setFlash('error', 'Al momento non è stato rilevato alcun ticket chiuso');
+        return $this->redirect(['site/index']);
+    }
+
+    return $this->render('allTicketScadence', [
+        'ticket' => $ticket,
+        'searchTicket' => $searchTicket
+    ]);
+}
+
+public function actionOpen()
+{
+    $searchTicket = new Ticket();
+    $query = Ticket::find()
+        ->where(['stato' => 'aperto'])
+        ->with('cliente'); // ottimizzazione
+
+    // 🔎 LIVE SEARCH AJAX
+    if (Yii::$app->request->isAjax) {
+
+        $searchTicket->load(Yii::$app->request->post());
+
+        $searchValue = trim($searchTicket->codice_ticket);
+
+        $query->andFilterWhere([
+            'like',
+            'codice_ticket',
+            $searchValue
+        ]);
+
+        $tickets = $query->all();
+
+        return $this->renderAjax('_ticketTable', [
+            'ticket' => $tickets
         ]);
     }
 
-    public function actionScaduto()
-    {
-        // Recupera tutti i ticket con stato "scaduto"
-        $ticket = Ticket::find()->where(['stato' => 'scaduto'])->all();
+    // 🟢 Caricamento normale pagina
+    $ticket = $query->all();
 
-        // Conta quanti ticket scaduti esistono
-        $ticketCount = Ticket::find()->where(['stato' => 'scaduto'])->count();
+    return $this->render('allTicketOpen', [
+        'ticket' => $ticket,
+        'searchTicket' => $searchTicket
+    ]);
+}
 
-        // Se non ci sono ticket scaduti → messaggio + redirect alla home
-        if ($ticketCount == 0) {
-            Yii::$app->session->setFlash('error', 'Al momento non e\' stato rilevato alcun ticket scaduto');
-            return $this->redirect(['site/index']);
-        }
 
-        // Mostra la vista con i ticket scaduti
-        return $this->render('allTicketScadence', [
-            'ticket' => $ticket
-        ]);
-    }
-
-    public function actionOpen()
-    {
-        // Recupera tutti i ticket con stato "aperto"
-        $ticket = Ticket::find()->where(['stato' => 'aperto'])->all();
-
-        // Conta quanti ticket aperti esistono
-        $ticketCount = Ticket::find()->where(['stato' => 'aperto'])->count();
-
-        // Se non ci sono ticket aperti → messaggio + redirect
-        if ($ticketCount == 0) {
-            Yii::$app->session->setFlash('error', 'Al momento non e\' stato rilevato alcun ticket aperto');
-            return $this->redirect(['site/index']);
-        }
-
-        // Mostra la vista con i ticket aperti
-        return $this->render('allTicketOpen', [
-            'ticket' => $ticket
-        ]);
-    }
 
     public function actionDelegate($codice_ticket, $ambito)
     {
@@ -151,7 +186,7 @@ public function behaviors()
     
 
         if($function->random_num($ambito)==null){
-            Yii::$app->session->setFlash('error','Nessun developer è al momento disponibile per la risoluzione del ticket');
+            Yii::$app->session->setFlash('error','Nessun operatore è al momento disponibile per la risoluzione del ticket');
             return $this->redirect(['ticketing']);
         }
         // Controlla se il ticket è già assegnato

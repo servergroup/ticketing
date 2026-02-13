@@ -62,7 +62,7 @@
                         'items' => [
                             ['label' => 'Tutti i ticket', 'icon' => 'fas fa-list', 'url' => ['admin/ticketing']],
                             ['label' => 'Ticket aperti', 'icon' => 'fas fa-exclamation-circle', 'url' => ['admin/open']],
-                            ['label' => 'Ticket chiusi', 'icon' => 'fas fa-check', 'url' => ['admin/scaduto']],
+                            ['label' => 'Ticket chiusi', 'icon' => 'fas fa-check', 'url' => ['admin/chiuso']],
                             ['label' => 'Nuovo ticket', 'icon' => 'fas fa-plus', 'url' => ['ticket/new-ticket']],
                            
                         ]

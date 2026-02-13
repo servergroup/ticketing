@@ -213,8 +213,8 @@ class ticketFunction extends Model
 
         if ($ambitoLower === 'sviluppo' || $ambitoLower === 'sviluppatore') {
             $ruolo = 'developer';
-        } elseif ($ambitoLower === 'itc' || $ambitoLower === 'ict') {
-            $ruolo = 'itc';
+        } elseif ($ambitoLower === 'ict'|| $ambitoLower === 'ict') {
+            $ruolo = 'ict';
         }
 
         if ($ruolo === null) {

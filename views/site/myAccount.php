@@ -187,7 +187,7 @@ h1, p {
 
             <!-- Modifica partita IVA SOLO SE CLIENTE -->
             <?php if (Yii::$app->user->identity->ruolo === 'cliente'): ?>
-                <?= Html::a('Modifica Partita IVA', ['site/modify-piva'], ['class' => 'btn btn-primary']) ?>
+                <?= Html::a('Modifica Partita IVA', ['site/modify-iva'], ['class' => 'btn btn-primary']) ?>
             <?php endif; ?>
 
        
