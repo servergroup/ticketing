@@ -227,6 +227,11 @@ public function actionOpen()
            $users=User::findOne(['approvazione'=>false]);
         $function=new userService();
 
+        if($users->ruolo==='personale')
+            {
+                Yii::$app->session->setFlash('error','Prima di approvare la registrazione dell \'operatore si prega di definire prima un ruolo');
+             return $this->redirect(['attese']);
+            }
         if($function->approva($username))
             {
                 Yii::$app->session->setFlash('success','Approvazione effettuata correttamente ');
@@ -354,13 +359,36 @@ public function actionVerifyRuolo()
     return $this->render('viewRuoli',['user'=>$user]);
     }
 
-    public function actionTempi()
-    {
-        $tempi=TempiTicket::find()->all();
+public function actionTempi()
+{
+    $searchTempi = new TempiTicket();
 
-        return $this->render('TimeTicket',['tempi'=>$tempi]);
+    // Se arriva una ricerca via POST
+    if ($searchTempi->load(Yii::$app->request->post())) {
+
+        $query = TempiTicket::find()
+            ->joinWith('ticket') // relazione con Ticket
+            ->andFilterWhere(['like', 'ticket.id', $searchTempi->id_ticket]);
+
+        $tempi = $query->all();
+
+        // Se è una richiesta AJAX (live search), ritorni solo la tabella
+        if (Yii::$app->request->isAjax) {
+            return $this->renderPartial('_tempiTable', [
+                'tempi' => $tempi
+            ]);
+        }
+
+    } else {
+        // Nessuna ricerca → mostra tutto
+        $tempi = TempiTicket::find()->all();
     }
 
+    return $this->render('TimeTicket', [
+        'tempi' => $tempi,
+        'searchTempi' => $searchTempi
+    ]);
+}
 
 
     }

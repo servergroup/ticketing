@@ -70,7 +70,7 @@ class ticketFunction extends Model
     public function newTicket($problema, $ambito, $scadenza, $priorita): bool
     {
         $ticket = new Ticket();
-        $admins = User::find()->where(['ruolo' => ['amministratore', 'itc', 'developer']])->all();
+        
 
         $cliente = User::findOne(['username' => Yii::$app->user->identity->username]);
         if (!$cliente) {
@@ -87,28 +87,9 @@ class ticketFunction extends Model
         $ticket->id_cliente = $cliente->id;
         $ticket->priorita = $priorita;
 
-        // Notifica preventiva (opzionale)
-        foreach ($admins as $admin) {
-            $this->contact(
-                $admin->email,
-                '<p>Attenzione, mancano 3 giorni alla scadenza del ticket con codice ' . $ticket->codice_ticket . '.</p>',
-                'Scadenza in arrivo'
-            );
-        }
+      
 
-        if ($ticket->save()) {
-            // NOTA: non viene creato alcun record in tempi_ticket qui (richiesto dall'utente)
-           /* foreach ($admins as $admin) {
-                $this->contact(
-                    $admin->email,
-                    '<p>Nuovo ticket in arrivo<br>Codice ticket: ' . $ticket->codice_ticket . '<br>Richiesta: ' . $ticket->problema . '<br>Azienda richiedente: ' . $cliente->azienda . '</p>',
-                    'Nuovo ticket in arrivo'
-                );
-            }*/
-            return true;
-        }
-
-        return false;
+       return $ticket->save();
     }
 
     /**
@@ -135,7 +116,7 @@ class ticketFunction extends Model
     {
         $tickets = Ticket::find()->where(['stato' => 'aperto'])->all();
         $now = new \DateTime();
-        $personale = User::find()->where(['ruolo' => ['amministratore', 'cliente', 'itc', 'developer']])->all();
+      
 
         foreach ($tickets as $ticket) {
             if (empty($ticket->scadenza)) {
@@ -154,13 +135,7 @@ class ticketFunction extends Model
                 $ticket->stato = 'scaduto';
                 $ticket->save(false);
 
-                foreach ($personale as $p) {
-                    $this->contact(
-                        $p->email,
-                        '<p>Si comunica che in data ' . date('Y-m-d') . ' alle ore ' . date('H:i:s') . ' è scaduto un ticket.<br>Codice ticket: ' . $ticket->codice_ticket . '<br>Scaduto il: ' . $ticket->scadenza . '</p>',
-                        'Ticket scaduto'
-                    );
-                }
+               
 
                 $history = new History();
                 $history->id_ticket = $ticket->id;
@@ -178,13 +153,11 @@ class ticketFunction extends Model
     public function deleteTicket(int $id): bool
     {
         $ticket = Ticket::findOne($id);
-        if (!$ticket) {
-            return false;
-        }
-
+        $tempi=TempiTicket::findOne(['id_ticket'=>$id]);
+        
+       
         $cliente = User::findOne(['username' => Yii::$app->user->identity->username]);
-        $personale = User::find()->where(['ruolo' => ['amministratore', 'cliente', 'itc', 'developer']])->all();
-
+       
         $history = new History();
         $history->id_ticket = $ticket->id;
         $history->id_operatore = $cliente ? $cliente->id : null;
@@ -192,15 +165,11 @@ class ticketFunction extends Model
         $history->stato = $ticket->stato;
         $history->save(false);
 
-        foreach ($personale as $p) {
-            $this->contact(
-                $p->email,
-                '<p>Si comunica che in data ' . date('Y-m-d') . ' alle ore ' . date('H:i:s') . ' è stato cancellato un ticket da ' . ($cliente ? ($cliente->nome . ' ' . $cliente->cognome) : 'utente sconosciuto') . '.</p>',
-                'Eliminazione ticket'
-            );
+        if($tempi){
+        $tempi->delete();
         }
 
-        return (bool)$ticket->delete();
+        return $ticket->delete();
     }
 
     /**

@@ -16,25 +16,30 @@ class User extends ActiveRecord implements IdentityInterface
     public function rules()
     {
         return [
-            [['nome','cognome','username','password','email','ruolo'], 'required'],
-            ['username','unique'],
-            ['email','email'],
-            [['approvazione','blocco'], 'boolean'],
+            [['nome', 'cognome', 'username', 'password', 'email', 'ruolo'], 'required'],
+            ['username', 'unique'],
+            ['email', 'email'],
+
+            [['approvazione', 'blocco'], 'boolean'],
             ['tentativi', 'integer'],
-            [['partita_iva','recapito_telefonico','azienda'], 'string'],
+
+            [['partita_iva', 'recapito_telefonico', 'azienda','token'], 'string'],
+
             [
-                ['immagine'],
+                'immagine',
                 'file',
-                'extensions' => ['jpg','jpeg','png','webp'],
+                'extensions' => ['jpg', 'jpeg', 'png', 'webp'],
                 'skipOnEmpty' => true
             ],
+
+            // token può essere vuoto finché non viene generato
+            ['token', 'string'],
         ];
     }
 
-    public function isApproved()
-    {
-        return (bool) $this->approvazione;
-    }
+    /* ============================================================
+     *  LOGIN & AUTENTICAZIONE
+     * ============================================================ */
 
     public static function findIdentity($id)
     {
@@ -43,18 +48,17 @@ class User extends ActiveRecord implements IdentityInterface
 
     public static function findIdentityByAccessToken($token, $type = null)
     {
-        return static::findOne(['access_token' => $token]);
+        // La colonna si chiama "token", quindi usiamo quella
+        return static::findOne(['token' => $token]);
     }
 
-public static function findByUsername($value)
-{
-    return static::find()
-        ->where(['username' => $value])
-        ->orWhere(['email' => $value])
-        ->one();
-}
-
-
+    public static function findByUsername($value)
+    {
+        return static::find()
+            ->where(['username' => $value])
+            ->orWhere(['email' => $value])
+            ->one();
+    }
 
     public function getId()
     {
@@ -74,5 +78,46 @@ public static function findByUsername($value)
     public function validatePassword($password)
     {
         return Yii::$app->security->validatePassword($password, $this->password);
+    }
+
+    /* ============================================================
+     *  TOKEN RESET PASSWORD
+     * ============================================================ */
+
+  public function generatePasswordResetToken()
+{
+   return $this->token = Yii::$app->security->generateRandomString() . '_' . time();
+}
+
+
+    public static function findByPasswordResetToken($token)
+    {
+        if (!static::isPasswordResetTokenValid($token)) {
+            return null;
+        }
+
+        return static::findOne(['token' => $token]);
+    }
+
+  public static function isPasswordResetTokenValid($token)
+{
+    if (empty($token)) {
+        return false;
+    }
+
+    $timestamp = (int) substr($token, strrpos($token, '_') + 1);
+    $expire = 1200; // 20  minuti
+
+    return $timestamp + $expire >= time();
+}
+
+
+    /* ============================================================
+     *  METODI UTILI
+     * ============================================================ */
+
+    public function isApproved()
+    {
+        return (bool) $this->approvazione;
     }
 }

@@ -1,101 +1,95 @@
 <?php
 use yii\helpers\Html;
-use app\models\User;
-use app\models\Ticket;
+use yii\widgets\ActiveForm;
+
 /** @var yii\web\View $this */
 /** @var app\models\TempiTicket[] $tempi */
+/** @var app\models\TempiTicket $searchTempi */
 ?>
- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
-<h1 class="text-center">Stato dei miei ticket</h1>
-<p class="text-center">Qui vedrai lo stato dei tuoi ticket</p>
+<h1 class="text-center mb-2">Tempi di lavorazione</h1>
 
-<?php if (empty($ticket)): ?>
-    <p class="text-center mt-4">Non hai ancora ticket aperti.</p>
-<?php else: ?>
+<!-- FORM DI RICERCA -->
+<div class="text-center mb-4">
+    <?php $form = ActiveForm::begin([
+        'id' => 'tempiSearchForm',
+        'method' => 'post',
+        'action' => Yii::$app->request->url,
+        'options' => ['class' => 'd-flex justify-content-center gap-2']
+    ]); ?>
+        <?= $form->field($searchTempi, 'id_ticket')
+            ->textInput([
+                'placeholder' => 'Cerca ID ticket...',
+                'id' => 'liveSearchTempi',
+                'class' => 'form-control form-control-lg'
+            ])
+            ->label(false) ?>
+    <?php ActiveForm::end(); ?>
+</div>
 
-<table class="table table-bordered table-striped mt-4">
-    <thead class="table-dark">
-        <tr>
-            <th>Codice Ticket</th>
-            <th>Inizio</th>
-            <th>Fine</th>
-            <th>Tempo lavorazione</th>
-            <th>Operatore</th>
-        </tr>
-    </thead>
+<!-- CONTAINER PER LA TABELLA (AJAX LIVE SEARCH) -->
+<div id="tempiTableContainer">
+    <?= $this->render('_tempiTable', ['tempi' => $tempi]) ?>
+</div>
 
-    <tbody>
-       <?php foreach ($tempi as $tempi_item): ?>
+<!-- MODAL: COPIA CODICE TICKET -->
+<div class="modal fade" id="copyTicketModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
 
-    <?php
-    // Recupero ticket completo
-    $ticket = Ticket::findOne($tempi_item->id_ticket);
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title">Codice Ticket</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
 
-    // Recupero operatore
-    $operatore = User::findOne($tempi_item->id_operatore);
+      <div class="modal-body text-center">
+        <p class="mb-2">Copia il codice del ticket:</p>
+        <input id="ticketCodeToCopy" class="form-control text-center fw-bold" readonly>
+      </div>
 
-    if (!$ticket) continue; // evita errori se manca il ticket
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Chiudi</button>
+        <button id="copyCodeBtn" class="btn btn-primary">Copia</button>
+      </div>
 
-    $modalId = 'modalTicket-' . $ticket->id;
-    ?>
+    </div>
+  </div>
+</div>
 
-    <tr>
-        <td>
-            <!-- Bottone modale -->
-            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#<?= $modalId ?>">
-                <?= Html::encode($ticket->codice_ticket) ?>
-            </button>
+<?php
+$script = <<<JS
 
-            <!-- Modale -->
-            <div class="modal fade" id="<?= $modalId ?>" tabindex="-1" aria-hidden="true">
-                <div class="modal-dialog">
-                    <div class="modal-content">
+/* 🔍 Ricerca live */
+$('#liveSearchTempi').on('keyup', function() {
+    var searchVal = $(this).val();
 
-                        <div class="modal-header">
-                            <h5 class="modal-title">Info ticket <?= Html::encode($ticket->codice_ticket) ?></h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                        </div>
+    $.ajax({
+        type: 'POST',
+        url: window.location.href,
+        data: { 'TempiTicket[id_ticket]': searchVal },
+        success: function(data) {
+            $('#tempiTableContainer').html(data);
+        }
+    });
+});
 
-                        <div class="modal-body">
-                            <p><strong>ID:</strong> <?= Html::encode($ticket->id) ?></p>
-                            <p><strong>Codice ticket:</strong> <?= Html::encode($ticket->codice_ticket) ?></p>
-                            <p><strong>Problema:</strong> <?= Html::encode($ticket->problema) ?></p>
-                            <p><strong>Stato:</strong> <?= Html::encode($ticket->stato) ?></p>
-                            <p><strong>Ambito:</strong> <?= Html::encode($ticket->ambito) ?></p>
+/* 📋 Apertura modal copia codice */
+$(document).on('click', '.btn-copy-ticket', function() {
+    let code = $(this).data('code');
+    $('#ticketCodeToCopy').val(code);
 
-                            <p><strong>Scadenza:</strong>
-                                <?= $ticket->scadenza ? Html::encode($ticket->scadenza) : 'Non definita' ?>
-                            </p>
+    var modal = new bootstrap.Modal(document.getElementById('copyTicketModal'));
+    modal.show();
+});
 
-                            <p><strong>Cliente:</strong>
-                                <?= Html::encode($ticket->cliente->nome ?? 'N/D') ?>
-                            </p>
-                        </div>
+/* 📋 Copia negli appunti */
+$('#copyCodeBtn').on('click', function() {
+    let input = document.getElementById('ticketCodeToCopy');
+    input.select();
+    navigator.clipboard.writeText(input.value);
+});
 
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Chiudi</button>
-                        </div>
+JS;
 
-                    </div>
-                </div>
-            </div>
-        </td>
-
-        <td><?= Html::encode($tempi_item->ora_inizio) ?></td>
-        <td><?= Html::encode($tempi_item->ora_fine) ?></td>
-        <td><?= Html::encode($tempi_item->tempo_lavorazione) ?></td>
-
-        <td>
-            <?= Html::encode($operatore ? $operatore->nome . ' ' . $operatore->cognome : 'N/D') ?>
-        </td>
-    </tr>
-
-<?php endforeach; ?>
-
-    </tbody>
-</table>
-
-
-<?php endif; ?>
+$this->registerJs($script);
+?>

@@ -4,6 +4,7 @@ use yii\helpers\Url;
 
 /** @var app\models\User $user */
 /** @var int $countTicket */
+use app\models\Ticket;
 /** @var string|null $stato */
 /** @var app\models\Ticket|null $ultimoTicket */
 
@@ -78,8 +79,8 @@ $stato = $stato ?? '—';
             </div>
 
         <?php elseif ($ruolo === 'amministratore'): ?>
-
-            <div class="stat-card clickable" onclick="window.location.href='<?= Url::to(['ticket/my-ticket']) ?>'">
+            <?php $countTicket=Ticket::find()->count()?>
+            <div class="stat-card clickable" onclick="window.location.href='<?= Url::to(['admin/ticketing']) ?>'">
                 <div class="stat-icon blue"><i class="fas fa-ticket-alt"></i></div>
                 <div class="stat-info">
                     <h3><?= (int)$countTicket ?></h3>

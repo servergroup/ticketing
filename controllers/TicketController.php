@@ -6,6 +6,7 @@ use app\models\Ticket;
 use app\models\ticketFunction;
 use yii\filters\VerbFilter;
 use yii\filters\AccessControl;
+use app\models\userService;
 use app\models\User;
 use app\eccezioni\dataException;
 use Yii;
@@ -95,6 +96,7 @@ public function behaviors()
     {
         $ticket = new Ticket();
         $function = new ticketFunction();
+        $admins = User::find()->where(['ruolo' => ['amministratore', 'itc', 'developer']])->all();
 
         if ($ticket->load(Yii::$app->request->post())) {
             try{
@@ -119,6 +121,14 @@ public function behaviors()
                 $ticket->priorita,
 
             )) {
+                  // Notifica preventiva (opzionale)
+        foreach ($admins as $admin) {
+            $function->contact(
+                $admin->email,
+                '<p>E\' stata avanzato un nuovo ticket con codice' . $ticket->codice_ticket . '.</p>',
+                'Nuovo ticket in arrivo'
+            );
+        }
                 Yii::$app->session->setFlash('success', 'Richiesta di ticketing inviata correttamente');
                 $function->ticketScaduto();
                 return $this->redirect(['site/index']);
@@ -192,8 +202,20 @@ public function actionMyTicket()
     public function actionDeleteTicket($id)
     {
         $function = new ticketFunction();
+        $user=new userService();
+         $personale = User::find()->where(['ruolo' => ['amministratore', 'cliente', 'itc', 'developer']])->all();
+          $cliente = User::findOne(['username' => Yii::$app->user->identity->username]);
 
         if ($function->deleteTicket($id)) {
+
+
+        foreach ($personale as $p) {
+            $user->contact(
+                $p->email,
+                '<p>Si comunica che in data ' . date('Y-m-d') . ' alle ore ' . date('H:i:s') . ' è stato cancellato un ticket da ' . ($cliente ? ($cliente->nome . ' ' . $cliente->cognome) : 'utente sconosciuto') . '.</p>',
+                'Eliminazione ticket'
+            );
+        }
             Yii::$app->session->setFlash('success', 'Eliminazione effettuata con successo');
             return $this->redirect(['site/index']);
         } else {
@@ -259,11 +281,20 @@ public function actionMyTicket()
     public function actionResolve($id)
     {
         $ticket=Ticket::findOne($id);
+        $user=new userService();
         $function=new ticketFunction();
+          $personale = User::find()->where(['ruolo' => ['amministratore', 'cliente', 'itc', 'developer']])->all();
         
 
             if($function->chiudiTicket($ticket->id))
                 {
+                     foreach ($personale as $p) {
+                    $user->contact(
+                        $p->email,
+                        '<p>Si comunica che in data ' . date('Y-m-d') . ' alle ore ' . date('H:i:s') . ' è scaduto un ticket.<br>Codice ticket: ' . $ticket->codice_ticket . '<br>Scaduto il: ' . $ticket->scadenza . '</p>',
+                        'Ticket scaduto'
+                    );
+                }
                     Yii::$app->session->setFlash('success','Ticket risolto correttamente');
                     return $this->redirect(['operatore/view-ticket']);
                 }else{

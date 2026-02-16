@@ -16,7 +16,7 @@
             ?>
             
             <div class="image">
-                <img src='<?=Yii::getAlias('@'.Yii::$app->user->identity->immagine)?>' class="img-circle elevation-2" alt="User Image">>
+                <img src='<?=Yii::getAlias('@web/img/upload/'.Yii::$app->user->identity->immagine)?>' class="img-circle elevation-2" alt="User Image">
                      
             </div>
             <?php
@@ -75,7 +75,7 @@
                     ['label' => 'Nuovo operatore/amministratore', 'icon' => 'fas fa-user-plus', 'url' => ['site/register']],
                     ['label' => 'Utenti in attesa', 'icon' => 'fas fa-user-clock', 'url' => ['admin/attese']],
                     ['label' => 'Utenti bloccati', 'icon' => 'fas fa-user-slash', 'url' => ['admin/block-user']],
-                     ['label' => 'Tempi del ticket', 'icon' => 'fas fa-ticket-alt', 'url' => ['ticket/']],
+                     ['label' => 'Tempi del ticket', 'icon' => 'fas fa-ticket-alt', 'url' => ['admin/tempi']],
 
                         ]
                     ],
@@ -89,7 +89,7 @@
                      
                 ]
                     ],
-                     ['label' => 'Tutti i reclami', 'icon' => 'fas fa-comment-dots', 'url' => ['site/all-reclami']],
+                   
                 ];             
             }
 
@@ -106,6 +106,8 @@
                         'icon' => 'fas fa-ticket-alt',
                         'items' => [
                             ['label' => 'Ticket assegnati', 'icon' => 'fas fa-file-alt', 'url' => ['operatore/view-ticket']],
+                             ['label' => 'Ticket del mio reparto', 'icon' => 'fas fa-file-alt', 'url' => ['ticket/my-reparto']],
+                             ['label' => 'Ticket del mio reparto aperti', 'icon' => 'fas fa-file-alt', 'url' => ['ticket/my-reparto-open']],
                         ]
                     ],
 
@@ -129,14 +131,7 @@
                             ['label' => 'Evoluzione ticket', 'icon' => 'fas fa-history', 'url' => ['ticket/my-ticket']],
                         ]
                     ],
-                    [
-                    'label'=>'reclami',
-                    'icon'=>'fas fa-comment-dots',
-                    'items'=>[
-                    ['label' => 'Reclama', 'icon' => 'fas fa-comment-dots', 'url' => ['reclamo/reclamo']],
-                    ['label' => 'I miei reclami', 'icon' => 'fas fa-comment-dots', 'url' => ['site/my-reclamo']],
-                    ],
-                ],
+                    ['label' => 'Contattaci', 'icon' => 'fas fa-contact', 'url' => ['site/contact']],
                 ];
             }
 

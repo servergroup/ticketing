@@ -143,7 +143,7 @@ h1, p {
                 'style' => 'display:none'
             ]) ?>
 
-          
+          <?= Html::submitButton('Modifica immagine',['class'=>'btn btn-primary']) ?>
 
             <?php ActiveForm::end(); ?>
         <table class="table table-bordered">

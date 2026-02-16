@@ -4,24 +4,32 @@ namespace app\controllers;
 
 use Yii;
 use app\models\clientService;
-use app\models\Reclami;
+use app\models\ContactForm;
+use app\models\Mail;
+use app\models\Ticket;
 
 class ReclamoController extends \yii\web\Controller
 {
-    public function actionReclamo()
-    {
-        $reclamo = new Reclami();
-        $function = new clientService();
+public function actionMessageTicket($codice_ticket)
+{
+    $model=new Mail();
+    $function = new ContactForm();
 
-        if ($reclamo->load(Yii::$app->request->post())) {
-            if ($function->reclami($reclamo->problema,$reclamo->codice_ticket)) {
-                Yii::$app->session->setFlash('success', 'Reclamo inviato correttamente');
-                return $this->redirect(['site/index']);
-            } else {
-                Yii::$app->session->setFlash('success', 'Reclamo inviato correttamente');
-                return $this->refresh();
-            }
-        }
-        return $this->render('reclamo', ['reclamo' => $reclamo]);
+   
+if($model->load(Yii::$app->request->post())){
+    if ($function->contactTicket($codice_ticket,$model->messagio)) {
+        Yii::$app->session->setFlash('success', 'Mail inviata');
+        return $this->redirect(['message-ticket']);
+    }else{
+        Yii::$app->session->setFlash('success', 'Mail non  inviata');
+        return $this->redirect(['message-ticket']);
     }
+}
+
+    return $this->render('message', [
+        'model' => $model
+    ]);
+}
+
+
 }

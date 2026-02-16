@@ -66,39 +66,42 @@ class userService extends Model
         return false;
     }
 
-    // =========================
-    // RICHIESTA RECUPERO PASSWORD
-    // =========================
-    public function emailRequest($email)
-    {
-        // Trova utente
-        $user = User::findOne(['email' => $email]);
+  public function emailRequest($email)
+{
+    $user = User::findOne(['email' => $email]);
 
-        // Crea cookie temporaneo con email
-        $cookie = new Cookie([
-            'name' => 'recupero',
-            'value' => $user->email,
-            'expire' => time() + 600 // valido 10 minuti
-        ]);
-
-        // Aggiunge cookie alla response
-        $cookie = Yii::$app->response->cookies->add($cookie);
-
-        $cookies = Yii::$app->request->cookies;
-
-        // Invia email con link recupero (link vuoto ⚠)
-        $this->contact($user->email, '
-        <html>
-        <body>
-        <p>E\' stata inviata al nostro portale una richiesta di modifica della password,
-        pertanto, le inviamo <a href="http://localhost:8000/site/recupero-password">il link di recupero di essa</a>.
-        Grazie e buon proseguimento</p>
-        </body>
-        </html>
-        ', 'Richiesta di recupero della password');
-
-        return true;
+    if (!$user) {
+        return false;
     }
+
+    // Genera token
+    $user->generatePasswordResetToken();
+
+    if (!$user->save(false)) {
+        return false;
+    }
+
+    // Crea link con token
+    $link = Yii::$app->urlManager->createAbsoluteUrl([
+        'site/recupero-password',
+        'token' => $user->token
+    ]);
+
+    // Invia email
+    Yii::$app->mailer->compose()
+        ->setTo($user->email)
+        ->setFrom(Yii::$app->params['senderEmail'])
+        ->setSubject('Recupero password')
+        ->setHtmlBody("
+            <p>È stata richiesta la reimpostazione della password.</p>
+            <p>Clicca qui per procedere:</p>
+            <p><a href='$link'>$link</a></p>
+        ")
+        ->send();
+
+    return true;
+}
+
 
     // =========================
     // REGISTRAZIONE UTENTE / ADMIN
@@ -181,31 +184,31 @@ class userService extends Model
         }
     
 
-    // =========================
-    // MODIFICA PASSWORD TRAMITE COOKIE
-    // =========================
-    public function modifyPassword($password)
-    {
-        $cookie = Yii::$app->request->cookies;
+public function modifyPassword($password, $token)
+{
+    $user = User::findOne(['token' => $token]);
 
-        // Trova utente tramite cookie recupero
-        $user = User::findOne(['email' => $cookie->getValue('recupero')]);
-
-        $user->password = Yii::$app->security->generatePasswordHash($password);
-
-        if ($user->save()) {
-            return true;
-        } else {
-            return false;
-        }
+    if (!$user) {
+        return false;
     }
+
+    $user->password = Yii::$app->security->generatePasswordHash($password);
+
+    // invalida il token
+    $user->token = null;
+
+    return $user->save();
+}
+
+
 
     // =========================
     // INVIO MAIL RECUPERO
     // =========================
-   public function invioMail($email)
+   /*
+    public function invioMail($email)
 {
-    if ($this->validate()) {
+    
 
         Yii::$app->mailer->compose()
             ->setTo($email)
@@ -222,22 +225,11 @@ class userService extends Model
             ->send();
 
         return true;
-    }
+  */
 
-    return false;
-}
+   
+//}
 
-    // =========================
-    // VERIFICA COOKIE EMAIL
-    // =========================
-    public function verifyCookie()
-    {
-        $cookie=Yii::$app->request->cookies;
-
-        if($cookie->has('email')){
-            return User::findOne(['email' => $cookie->getValue('email')]);
-        }
-    }
 
     // =========================
     // MODIFICA EMAIL UTENTE LOGGATO
@@ -298,6 +290,8 @@ class userService extends Model
     {
         $user=User::findOne(['username'=>$username]);
         $user->approvazione=true;
+
+    
         return $user->save();
     }
 
@@ -319,18 +313,64 @@ class userService extends Model
     // =========================
     // MODIFICA IMMAGINE PROFILO
     // =========================
-    public function modifyImmagine()
-    {
-        $user=User::findOne(['username'=>Yii::$app->user->identity->username]);
-        $file=UploadedFile::getInstance($user,'immagine');
-
-        $fileName=Yii::$app->security->generateRandomString().'.'.'svg';
-
-        $file->saveAs('upload/'.$fileName);
-        $user->immagine=$fileName;
-
-        return $user->save();
-    }
+/** * @param \app\models\User $user 
+ * * @param UploadedFile $file 
+ * * @return bool */ 
+public function modifyImmagine($user, UploadedFile $file) {
+     if (!$user || !$file) { 
+        return false; 
+        } 
+        // Permessi/estensioni consentite (adatta se vuoi altri tipi) 
+        $allowedExtensions = ['png', 'jpg', 'jpeg', 'gif', 'svg']; 
+        $ext = strtolower($file->extension ?: pathinfo($file->name, PATHINFO_EXTENSION)); 
+        if (!in_array($ext, $allowedExtensions, true)) { 
+            Yii::error("Estensione non consentita: {$ext}"); 
+            return false; 
+            } 
+            // Directory di destinazione (filesystem) 
+            $uploadDir = Yii::getAlias('@webroot/img/upload'); 
+            // Crea la cartella se non esiste 
+            if (!is_dir($uploadDir)) { 
+                if (!mkdir($uploadDir, 0755, true) && !is_dir($uploadDir)) { 
+                    Yii::error("Impossibile creare la cartella upload: {$uploadDir}");
+                     return false; 
+                     } 
+                     } 
+                     // Controlla scrivibilità 
+                     if (!is_writable($uploadDir)) { 
+                        // prova a cambiare permessi (attenzione in produzione) 
+                        @chmod($uploadDir, 0755); 
+                        if (!is_writable($uploadDir)) { 
+                            Yii::error("Cartella upload non scrivibile: {$uploadDir}");
+                            return false; 
+                            } 
+                            } // Genera nome file sicuro 
+                            $fileName = Yii::$app->security->generateRandomString(16) . '.' . $ext; $fullPath = $uploadDir . DIRECTORY_SEPARATOR . $fileName; 
+                            // Salva il file (usa saveAs che usa internamente move_uploaded_file) 
+                            try { 
+                                if (!$file->saveAs($fullPath)) { 
+                                    Yii::error("Salvataggio file fallito: {$fullPath}"); return false; 
+                                    } 
+                                    } catch (\Throwable $e) {
+                                         Yii::error("Eccezione durante saveAs: " . $e->getMessage()); return false; 
+                                         } // (Opzionale) rimuovi immagine precedente se presente e non è default
+                                          if (!empty($user->immagine)) { 
+                                            $old = Yii::getAlias('@webroot/img/upload/' . $user->immagine); if (is_file($old) && is_writable($old)) { @unlink($old); 
+                                            } 
+                                            } 
+                                            // Salva il nome file nel modello (solo attributo immagine) 
+                                            $user->immagine = $fileName; 
+                                            if ($user->save(false, ['immagine'])) { 
+                                                return true; 
+                                                } else { 
+                                                    // rollback: elimina file appena salvato se il DB non si aggiorna 
+                                                    if (is_file($fullPath)) { 
+                                                        @unlink($fullPath); 
+                                                        } 
+                                                        Yii::error('Impossibile salvare il modello User con la nuova immagine.'); 
+                                                        return false; 
+                                                        } 
+                                                        } 
 
     // =========================
     // MODIFICA TURNI
@@ -446,7 +486,7 @@ class userService extends Model
  public function visualizzato($codice_ticket)
 {
     // trova il reclamo specifico
-    $reclamo = Reclami::findOne(['codice_ticket' => $codice_ticket]);
+    $reclamo = Mail::findOne(['codice_ticket' => $codice_ticket]);
     
     if (!$reclamo) return false; // se non esiste, ritorna false
 
@@ -476,22 +516,14 @@ public function avanzaRiapertura($codice_ticket, $id_operatore)
             Codice ticket: ' . $codice_ticket . '
             <br> da: ' . $operatore->nome . ' ' . $operatore->cognome . '
             </p>
+            <a href='.'http://localhost:8000/site/login'.'></a>
             </body>
             </html>
             ',
             'richiesta di avanzo del ticket'
         );
 
-    $cookie=new Cookie(
-        [
-            'name'=>'richiesta',
-            'value'=>'yes' . $ticket->codice_ticket . $id_operatore,
-            'expire'=>time() + 999999
-        ]
-    );
-
-
-    Yii::$app->response->cookies->add($cookie);
+ 
 
     
         if (!$success) {
