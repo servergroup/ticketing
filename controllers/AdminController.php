@@ -74,26 +74,55 @@ public function behaviors()
 
 public function actionTicketing()
 {
-    $searchTicket = new Ticket();
+    $filterType = Yii::$app->request->post('filterType');
+    $filterValue = Yii::$app->request->post('filterValue');
 
-    // Creiamo la query base
-    $query = Ticket::find()->with('cliente'); // Assicurati che 'cliente' sia la relazione verso User
+    // Query base con join per azienda
+    $query = Ticket::find()
+        ->joinWith('cliente'); // necessario per filtrare cliente.azienda
 
-    // Filtra per live search se arriva AJAX
-    if (Yii::$app->request->isAjax && $searchTicket->load(Yii::$app->request->post())) {
-        $query->andFilterWhere(['like', 'codice_ticket', $searchTicket->codice_ticket]);
+    // FILTRI AJAX
+    if (Yii::$app->request->isAjax) {
+
+        if ($filterType && $filterValue) {
+
+            switch ($filterType) {
+
+                case 'azienda':
+                    $query->andWhere(['like', 'cliente.azienda', $filterValue]);
+                    break;
+
+                case 'stato':
+                    $query->andWhere(['like', 'ticket.stato', $filterValue]);
+                    break;
+
+                case 'problema':
+                    $query->andWhere(['like', 'ticket.problema', $filterValue]);
+                    break;
+
+                case 'id_cliente':
+                    $query->andWhere(['ticket.id_cliente' => $filterValue]);
+                    break;
+
+                case 'codice_ticket':
+                default:
+                    $query->andWhere(['like', 'ticket.codice_ticket', $filterValue]);
+                    break;
+            }
+        }
+
         $tickets = $query->all();
-        return $this->renderAjax('_ticketTable', ['ticket' => $tickets]);
+        return $this->renderPartial('_ticketTable', ['ticket' => $tickets]);
     }
 
-    // Visualizzazione normale
+    // VISUALIZZAZIONE NORMALE
     $ticket = $query->all();
 
     return $this->render('allTicketing', [
-        'ticket' => $ticket,
-        'searchTicket' => $searchTicket
+        'ticket' => $ticket
     ]);
 }
+
 
 
 
@@ -389,6 +418,7 @@ public function actionTempi()
         'searchTempi' => $searchTempi
     ]);
 }
+
 
 
     }

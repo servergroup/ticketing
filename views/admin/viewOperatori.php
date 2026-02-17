@@ -1,142 +1,71 @@
 <?php
-
 use yii\helpers\Html;
 use app\models\Ticket;
 use app\models\Turni;
+use app\models\User;
+use yii\base\View;
+use app\assets\AppAsset;
 
-/** @var app\models\User[] $dipendenti */
-
+AppAsset::register($this);
+/** @var app\models\Turni[] $dipendenti*/
 ?>
-<style>
-.turni-container {
-    max-width: 1100px;
-    margin: 30px auto;
-    font-family: "Inter", "Segoe UI", Arial, sans-serif;
-}
 
-.table-card {
-    background: #ffffff;
-    padding: 25px;
-    border-radius: 12px;
-    box-shadow: 0 4px 18px rgba(0,0,0,0.06);
-}
+<div class="turni-wrapper">
 
-.table-title {
-    font-size: 22px;
-    font-weight: 600;
-    color: #2c3e50;
-    margin-bottom: 18px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
+    <h1 class="turni-title">
+        <i class="fas fa-users-cog"></i>
+        Tabellone dei turni degli operatori
+    </h1>
 
-.table-title i {
-    color: #0056b3;
-    font-size: 22px;
-}
+    <?php if (empty($dipendenti)): ?>
+        <p class="no-results">Nessun risultato trovato.</p>
 
-.ticket-table {
-    width: 100%;
-    border-collapse: collapse;
-    background: #ffffff;
-    border-radius: 10px;
-    overflow: hidden;
-}
+    <?php else: ?>
 
-.ticket-table thead {
-    background: #f3f6fa;
-    border-bottom: 2px solid #e1e7ef;
-}
-
-.ticket-table th {
-    padding: 14px;
-    font-size: 14px;
-    color: #34495e;
-    font-weight: 600;
-}
-
-.ticket-table td {
-    padding: 14px;
-    font-size: 14px;
-    color: #2c3e50;
-    border-bottom: 1px solid #f1f4f8;
-}
-
-.ticket-table tbody tr:hover {
-    background: #f9fbff;
-}
-
-.muted {
-    color: #9aa4b1;
-    font-style: italic;
-}
-
-.action-cell {
-    text-align: center;
-}
-
-.action-btn {
-    background: #0056b3;
-    color: white;
-    padding: 8px 10px;
-    border-radius: 6px;
-    font-size: 14px;
-    transition: background 0.2s, transform 0.1s;
-}
-
-.action-btn:hover {
-    background: #003f82;
-    transform: scale(1.05);
-}
-
-.action-btn i {
-    font-size: 16px;
-}
-</style>
-
-<div class="turni-container">
-    <div class="table-card">
-        <h2 class="table-title">
-            <i class="fas fa-users-cog"></i> Gestione Turni Operatori
-        </h2>
-
-        <table class="ticket-table">
-            <thead>
+        <table class="table table-hover table-striped align-middle shadow-sm">
+            <thead class="table-dark">
                 <tr>
-                    <th>Id</th>
+                    <th>ID</th>
                     <th>Nome</th>
                     <th>Cognome</th>
                     <th>Entrata</th>
                     <th>Uscita</th>
                     <th>Pausa</th>
-                    <th style="text-align:center;">Azioni</th>
+                    
                 </tr>
             </thead>
 
             <tbody>
-            <?php foreach($dipendenti as $dipendenti_item):
-                $turni = Turni::findOne(['id_operatore' => $dipendenti_item->id]);
-            ?>
-                <tr>
-                    <td><?= Html::encode($dipendenti_item->id) ?></td>
-                    <td><?= Html::encode($dipendenti_item->nome) ?></td>
-                    <td><?= Html::encode($dipendenti_item->cognome) ?></td>
+                <?php foreach ($dipendenti as $dipendenti_item): ?>
+                    <?php $turni = Turni::findOne(['id_operatore' => $dipendenti_item->id]); ?>
 
-                    <td><?= $turni && $turni->entrata ? Html::encode($turni->entrata) : '<span class="muted">Non definita</span>' ?></td>
-                    <td><?= $turni && $turni->uscita ? Html::encode($turni->uscita) : '<span class="muted">Non definita</span>' ?></td>
-                    <td><?= $turni && $turni->pausa ? Html::encode($turni->pausa) : '<span class="muted">Non definita</span>' ?></td>
+                    <tr>
+                        <td><p><strong>ID:</strong> <?= Html::encode($turni->id) ?></p></td>
+                        <td><p><strong>Nome:</strong> <?= Html::encode($dipendenti_item->nome) ?></p></td>
+                        <td><p><strong>Cognome:</strong> <?= Html::encode($dipendenti_item->cognome) ?></p></td>
+                        <td><p><strong>Entrata:</strong> <?= Html::encode($turni->entrata) ?></p></td>
+                        <td><p><strong>Uscita:</strong> <?= Html::encode($turni->uscita) ?></p></td>
+                       
 
-                    <td class="action-cell">
+                        <td>
+                            <p><strong>Pausa:</strong>
+                                <?= $turni->pausa ? Html::encode($turni->pausa) : "Non definita" ?>
+                            </p>
+                        </td>
+
+                         <td><p><strong>   <td class="action-cell">
                         <?= Html::a(
                             '<i class="fas fa-edit"></i>',
                             ['modify-turni', 'id_operatore' => $dipendenti_item->id],
                             ['class' => 'action-btn']
                         ) ?>
-                    </td>
-                </tr>
-            <?php endforeach; ?>
+                    </td></strong></p></td>
+                    </tr>
+
+                <?php endforeach; ?>
             </tbody>
         </table>
-    </div>
+
+    <?php endif; ?>
+
 </div>

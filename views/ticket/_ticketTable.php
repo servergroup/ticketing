@@ -70,16 +70,28 @@ use yii\helpers\Url;
                     ✏️
                 </a>
 
+                    <!-- RISPONDI A UN TICKET -->
+
+                      <a class="btn btn-sm btn-outline-primary"
+                   title="Rispondi a ticker"
+                   href="<?= Url::to(['ticket/modify-ticket', 'codiceTicket' => $ticket_item->codice_ticket]) ?>">
+                    <img src='<?= Yii::getAlias('@web/img/comments.png') ?>' style="
+                    width:10px;
+                    height:10px;
+                    ">
+                </a>
+
+
                 <!-- ASSEGNAZIONE / RITIRO -->
-                <<?php if (
-    ($ticket_item->stato === 'in lavorazione' || $ticket_item->stato === 'in_lavorazione')
+                <?php if (
+    ($ticket_item->stato === 'aperto' || $ticket_item->stato === 'APERTO')
     && Yii::$app->user->identity->ruolo == 'amministratore'
 ){?>
                     <a class="btn btn-sm btn-outline-success"
                        href="<?= Url::to(['admin/delegate', 'codice_ticket' => $ticket_item->codice_ticket, 'ambito' => $ticket_item->ambito]) ?>">
                         Assegna
                     </a>
-                <?php }else if ($ticket_item->stato ==='in lavorazione' ||  $ticket_item->stato ==='in_lavorazione' && Yii::$app->user->identity->ruolo=='amministratore'){ ?>
+                <?php }else if (($ticket_item->stato ==='in lavorazione' ||  $ticket_item->stato ==='in_lavorazione')&& Yii::$app->user->identity->ruolo=='amministratore'){ ?>
                     <a class="btn btn-sm btn-outline-warning"
                        href="<?= Url::to(['ticket/ritiro', 'codice_ticket' => $ticket_item->codice_ticket, 'ambito' => $ticket_item->ambito]) ?>">
                         Ritira

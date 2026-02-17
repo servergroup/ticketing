@@ -26,7 +26,8 @@ class m260128_095636_table_admin extends Migration
                 'partita_iva'=>$this->string(),
                 'azienda'=>$this->string(),
                 'recapito_telefonico'=>$this->string(),
-                'token'=>$this->string()
+                'token'=>$this->string(),
+                'immagine'=>$this->string()
             ]
         );
     }

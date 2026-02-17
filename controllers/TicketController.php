@@ -157,6 +157,17 @@ public function behaviors()
 public function actionMyTicket()
 {
     $utente = Yii::$app->user->identity;
+    $filterType = Yii::$app->request->post('filterType');
+$filterValue = Yii::$app->request->post('filterValue');
+
+$query = Ticket::find();
+
+if ($filterType && $filterValue) {
+    $query->andWhere(['like', $filterType, $filterValue]);
+}
+
+$ticket = $query->all();
+
 
     if (!$utente) {
         throw new \yii\web\ForbiddenHttpException('Utente non autenticato.');
@@ -189,7 +200,7 @@ public function actionMyTicket()
 
     if (empty($ticket)) {
         Yii::$app->session->setFlash('error', 'Non hai ancora creato nessun ticket.');
-        return $this->redirect(['ticket/new-ticket']);
+        return $this->redirect(['site/login']);
     }
 
     return $this->render('myTicket', [

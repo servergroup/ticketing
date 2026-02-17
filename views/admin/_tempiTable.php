@@ -19,7 +19,7 @@ use app\models\User;
             <th>Fine</th>
             <th>Durata</th>
             <th>Operatore</th>
-            <th>Info</th>
+            
         </tr>
     </thead>
 
@@ -53,12 +53,7 @@ use app\models\User;
 
                 <td><?= Html::encode($operatore ? $operatore->nome . ' ' . $operatore->cognome : 'N/D') ?></td>
 
-                <td>
-                    <button class="btn btn-primary btn-sm btn-info-ticket"
-                            data-content="<?= Html::encode($modalContent) ?>">
-                        Dettagli
-                    </button>
-                </td>
+               
             </tr>
 
         <?php endforeach; ?>

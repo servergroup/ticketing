@@ -23,7 +23,8 @@ class AppAsset extends AssetBundle
     public $css = [
         'css/site.css',
         'css/register.css',
-        'css/ticket.css'
+        'css/ticket.css',
+        'css/operatori.css'
         
         
         

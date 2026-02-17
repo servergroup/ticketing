@@ -472,6 +472,9 @@ public function modifyImmagine($user, UploadedFile $file) {
     public function resetRuolo($id)
     {
         $user=User::findOne($id);
+        if($user->approvazione){
+            $user->approvazione=false;
+        }
         $user->ruolo='personale';
         return $user->save();
     }
@@ -480,6 +483,9 @@ public function modifyImmagine($user, UploadedFile $file) {
     {
         $user=User::findOne($id);
         $user->ruolo=$ruolo;
+        if($user->approvazione){
+            $user->approvazione=false;
+        }
         return $user->save();
     }
 
@@ -535,5 +541,8 @@ public function avanzaRiapertura($codice_ticket, $id_operatore)
     return $tutteInviate;
 }
 
+     // =========================
+    // MODIFICA IL RUOLO 
+    // =========================
 
 }
