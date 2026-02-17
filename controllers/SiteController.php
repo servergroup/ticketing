@@ -17,7 +17,7 @@ use app\models\User;
 use app\models\Ticket;
 use app\models\ticketFunction;
 use app\models\Turni;
-use app\models\Reclami;
+use app\models\Mail;
 use Exception;
 
 class SiteController extends Controller
@@ -192,16 +192,23 @@ return $this->render('index', [
      */
     public function actionContact()
     {
+         
         $model = new ContactForm();
+        
+        
         if ($model->load(Yii::$app->request->post()) && $model->contact()) {
             Yii::$app->session->setFlash('contactFormSubmitted');
 
-            return $this->refresh();
+            return $this->refresh(); 
         }
         return $this->render('contact', [
             'model' => $model,
+          
         ]);
     }
+
+    
+
 
     /**
      * Displays about page.
@@ -232,23 +239,32 @@ return $this->render('index', [
         }
         return $this->render('recuperoMail', ['user' => $user]);
     }
-    public function actionRecuperoPassword()
-    {
-        $user = new User();
-        $function = new userService();
 
-        if ($user->load(Yii::$app->request->post())) {
+   public function actionRecuperoPassword($token)
+{
+    $user = User::findOne(['token' => $token]);
+    $function=new userService();
+    if (!$user) {
+        Yii::$app->session->setFlash('error', 'Token non valido o scaduto.');
+        return $this->redirect(['site/login']);
+    }
 
-            if ($function->modifyPassword($user->password)) {
-                Yii::$app->session->setFlash('success', 'Password modificata correttamente');
-                return $this->redirect(['login']);
-            } else {
+    if (Yii::$app->request->isPost) {
+        $password = Yii::$app->request->post('User')['password'];
 
-                Yii::$app->session->setFlash('error', 'Problema durante la modifica della password, riprovare');
-                var_dump($function->modifyPassword($user->passw));
-                return $this->refresh();
-            }
+        if ($function->modifyPassword($password, $token)) {
+            Yii::$app->session->setFlash('success', 'Password modificata con successo.');
+            return $this->redirect(['site/login']);
+        } else {
+            Yii::$app->session->setFlash('error', 'Errore durante la modifica della password.');
         }
+    }
+
+    return $this->render('modifyPassword', [
+        'tokenUser' => $user
+    ]);
+
+
 
         return $this->render('modifyPassword', ['user' => $user]);
     }
@@ -391,6 +407,8 @@ $ultimoTicket = Ticket::find()
 
 
             }
+
+            return $this->render('modifyIva',['user'=>$user]);
     }
 
     
@@ -399,12 +417,20 @@ public function actionModifyImage()
     $account = User::findOne(['username' => Yii::$app->user->identity->username]);
     $service = new userService();
 
-    if ($account->load(Yii::$app->request->post())) {
+    if (Yii::$app->request->isPost) {
+        // Prendi il file dall'input del modello $account (campo 'immagine')
+        $file = \yii\web\UploadedFile::getInstance($account, 'immagine');
 
-        if ($service->modifyImmagine()) {
-            Yii::$app->session->setFlash('success', 'Immagine modificata con successo');
+        if ($file === null) {
+            Yii::$app->session->setFlash('error', 'Nessun file caricato.');
+            return $this->redirect(['account']);
+        }
+
+        // Chiama il service passando l'account e l'UploadedFile
+        if ($service->modifyImmagine($account, $file)) {
+            Yii::$app->session->setFlash('success', 'Immagine modificata con successo.');
         } else {
-            Yii::$app->session->setFlash('error', 'Errore nella modifica dell\'immagine');
+            Yii::$app->session->setFlash('error', 'Errore nella modifica dell\'immagine.');
         }
 
         return $this->redirect(['account']);
@@ -414,6 +440,7 @@ public function actionModifyImage()
         'account' => $account
     ]);
 }
+
 
 public function actionModifyEmail()
 {
@@ -451,25 +478,20 @@ public function actionSaltaPausa($id)
 }
 
 public function actionMyReclamo(){
-    $reclamo=Reclami::find()->where(['azienda'=>Yii::$app->user->identity->azienda])->all();
+    $reclamo=Mail::find()->where(['azienda'=>Yii::$app->user->identity->azienda])->all();
 
     return $this->render('MyReclami',['reclamo'=>$reclamo]);
 }
 
-    public function actionAllReclami()
-    {
-        $reclamo=Reclami::find()->all();
-
-        return $this->render('MyReclami',['reclamo'=>$reclamo]);
-    }
+  
 
     public function actionVisualizzato($codice_ticket)
     {
         $function=new userService();
         
-        $function->visualizzato($codice_ticket);
+         return $function->visualizzato($codice_ticket);
 
-        return $this->redirect(['all-reclami']);
+        //return $this->redirect(['all-reclami']);
     }
 
     public function actionAvanzaRiapertura($codice_ticket,$id_operatore){

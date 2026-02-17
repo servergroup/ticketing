@@ -3,8 +3,9 @@
 use yii\bootstrap5\ActiveForm;
 use yii\bootstrap5\Html;
 
-$this->title = 'Contattaci';
+$this->title ='Contattaci';
 $this->params['breadcrumbs'][] = $this->title;
+
 ?>
 
 <div class="site-contact">
@@ -30,19 +31,17 @@ $this->params['breadcrumbs'][] = $this->title;
 
                 <?php $form = ActiveForm::begin(['id' => 'contact-form']); ?>
 
-                    <?= $form->field($model, 'name')
-                        ->textInput(['placeholder' => 'Il tuo nome', 'class' => 'form-control form-control-lg'])
-                        ->label('Nome') ?>
-
-                 
-                    <?= $form->field($model, 'subject')
-                        ->textInput(['placeholder' => 'Oggetto della richiesta', 'class' => 'form-control form-control-lg'])
-                        ->label('Oggetto') ?>
-
-                    <?= $form->field($model, 'body')
-                        ->textarea(['rows' => 6, 'placeholder' => 'Scrivi qui il tuo messaggio...', 'class' => 'form-control form-control-lg'])
+                <?= $form->field($model, 'body')
+                        ->textarea([
+                            'rows' => 6,
+                            'placeholder' => 'Scrivi qui il tuo messaggio...',
+                            'class' => 'form-control form-control-lg'
+                        ])
                         ->label('Messaggio') ?>
 
+               
+
+                    <!-- INVIO NORMALE -->
                     <div class="form-group mt-4">
                         <?= Html::submitButton('Invia richiesta', [
                             'class' => 'btn btn-primary btn-lg px-4 shadow-sm',
@@ -50,12 +49,15 @@ $this->params['breadcrumbs'][] = $this->title;
                         ]) ?>
                     </div>
 
+
+                   
                 <?php ActiveForm::end(); ?>
 
             </div>
         </div>
 
     <?php endif; ?>
+
 </div>
 
 <style>

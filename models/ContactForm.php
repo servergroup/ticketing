@@ -5,7 +5,7 @@ namespace app\models;
 use PHPUnit\Event\TestData\DataFromTestDependency;
 use Yii;
 use yii\base\Model;
-
+use app\models\Reclami;
 /**
  * ContactForm is the model behind the contact form.
  */
@@ -16,7 +16,7 @@ class ContactForm extends Model
     public $subject;
     public $body;
     public $verifyCode;
-
+    
 
     /**
      * @return array the validation rules.
@@ -50,17 +50,42 @@ class ContactForm extends Model
      */
     public function contact()
     {
-      
-            Yii::$app->mailer->compose()
+    
+   
+              Yii::$app->mailer->compose()
                 ->setTo(Yii::$app->user->identity->email)
                 ->setFrom(Yii::$app->params['senderEmail'])
                 ->setReplyTo([Yii::$app->params['senderEmail']=>'dataseed'])
-                ->setSubject($this->subject)
+                ->setSubject('Richiesta di contatto da ' .Yii::$app->user->identity->username)
                 ->setTextBody($this->body)
                 ->send();
 
-            return true;
+               
+                return true;
         
       
     }
+
+
+public function contactTicket($codice_ticket, $body)
+{
+    $reclamo = new Mail();
+    $ticket = Ticket::findOne(['codice_ticket' => $codice_ticket]);
+
+    Yii::$app->mailer->compose()
+        ->setTo(Yii::$app->params['senderEmail'])
+        ->setFrom(Yii::$app->params['senderEmail'])
+        ->setSubject('Risposta al ticket ' . $codice_ticket)
+        ->setTextBody($body)
+        ->send();
+
+    $reclamo->mittente = Yii::$app->user->identity->nome . ' ' . Yii::$app->user->identity->cognome;
+    $reclamo->destinatario = Yii::$app->params['senderEmail'];
+    $reclamo->oggetto = 'Risposta al ticket ' . $codice_ticket;
+    $reclamo->messagio = $body;
+    $reclamo->codice_ticket = $codice_ticket;
+
+    return $reclamo->save();
+}
+
 }

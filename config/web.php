@@ -3,7 +3,7 @@
 $params = require __DIR__ . '/params.php';
 $db = require __DIR__ . '/db.php';
 
-return [
+$config = [
     'id' => 'ticketing',
     'basePath' => dirname(__DIR__),
     'timeZone' => 'Europe/Rome',
@@ -17,32 +17,26 @@ return [
 
     'components' => [
 
-        /* ================= DATABASE ================= */
         'db' => $db,
 
-        /* ================= CACHE ================= */
         'cache' => [
             'class' => 'yii\caching\FileCache',
         ],
 
-        /* ================= REQUEST ================= */
         'request' => [
             'cookieValidationKey' => 't01WuOCqJYwM90-YE6WOdya_UuYUqNjO',
         ],
 
-        /* ================= USER ================= */
         'user' => [
             'identityClass' => 'app\models\User',
             'enableAutoLogin' => false,
             'enableSession' => true,
         ],
 
-        /* ================= ERROR HANDLER ================= */
         'errorHandler' => [
             'errorAction' => 'site/error',
         ],
 
-        /* ================= MAILER (GMAIL SMTP) ================= */
         'mailer' => [
             'class' => \yii\symfonymailer\Mailer::class,
             'useFileTransport' => false,
@@ -51,7 +45,6 @@ return [
             ],
         ],
 
-        /* ================= URL MANAGER ================= */
         'urlManager' => [
             'enablePrettyUrl' => true,
             'showScriptName' => false,
@@ -61,7 +54,6 @@ return [
             ],
         ],
 
-        /* ================= LOG (LEGGERO) ================= */
         'log' => [
             'traceLevel' => YII_DEBUG ? 3 : 0,
             'targets' => [
@@ -75,3 +67,15 @@ return [
 
     'params' => $params,
 ];
+
+/* ================= GII (solo in ambiente DEV) ================= */
+if (YII_ENV_DEV) {
+    $config['bootstrap'][] = 'gii';
+    $config['modules']['gii'] = [
+        'class' => 'yii\gii\Module',
+        'allowedIPs' => ['*'], // permette accesso da ovunque
+    ];
+}
+
+
+return $config;

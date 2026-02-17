@@ -1,29 +1,20 @@
 <?php
 use yii\helpers\Html;
 use yii\helpers\Url;
-use app\models\Turni;
+
 /** @var app\models\User $user */
 /** @var int $countTicket */
+use app\models\Ticket;
 /** @var string|null $stato */
-if($countTicket>0):
-/** @var app\models\Ticket $ultimoTicket */
-endif;
-
+/** @var app\models\Ticket|null $ultimoTicket */
 
 $ruolo = $user->ruolo;
 $nome  = Yii::$app->user->identity->nome;
-
-// Stato di fallback
 $stato = $stato ?? '—';
-
-defined('YII_DEBUG') or define('YII_DEBUG', false);
-defined('YII_ENV') or define('YII_ENV', 'prod');
-
 ?>
 
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
 
 <div class="dashboard-container">
 
@@ -34,13 +25,11 @@ defined('YII_ENV') or define('YII_ENV', 'prod');
 
             <?php if ($ruolo === 'cliente'): ?>
                 <p>Area riservata clienti. Gestisci le tue richieste di assistenza.</p>
-            <?php elseif ($ruolo === 'developer' || $ruolo === 'ict'): ?>
+            <?php elseif (in_array($ruolo, ['developer', 'ict'])): ?>
                 <p>Area operativa. Gestisci i ticket assegnati.</p>
             <?php elseif ($ruolo === 'amministratore'): ?>
                 <p>Area amministrativa. Supervisione e gestione ticket.</p>
             <?php endif; ?>
-
-          
         </div>
 
         <div class="hero-right">
@@ -53,56 +42,48 @@ defined('YII_ENV') or define('YII_ENV', 'prod');
 
         <?php if ($ruolo === 'cliente'): ?>
 
-           <div class="stat-card" onclick="window.location.href='<?= \yii\helpers\Url::to(['site/contact']) ?>'">
-
+            <div class="stat-card" onclick="window.location.href='<?= Url::to(['site/contact']) ?>'">
                 <div class="stat-icon blue"><i class="fas fa-phone"></i></div>
                 <div class="stat-info">
                     <h3>Contattaci</h3>
-                   
+                    <p>Parla con il nostro team di supporto.</p>
                 </div>
             </div>
 
-            <?php if($countTicket>0): ?>
-          <div class="stat-card" data-bs-toggle="modal" data-bs-target="#ticketModal">
-    <div class="stat-icon green"><i class="fas fa-flag"></i></div>
-    <div class="stat-info">
-        <h3><?= Html::encode($stato) ?></h3>
-        <p>Stato ultimo ticket</p>
-    </div>
-</div>
+            <?php if ($countTicket > 0 && isset($ultimoTicket)): ?>
+                <div class="stat-card" data-bs-toggle="modal" data-bs-target="#ticketModal">
+                    <div class="stat-icon green"><i class="fas fa-flag"></i></div>
+                    <div class="stat-info">
+                        <h3><?= Html::encode($stato) ?></h3>
+                        <p>Stato ultimo ticket</p>
+                    </div>
+                </div>
+            <?php endif; ?>
 
+        <?php elseif (in_array($ruolo, ['developer', 'ict'])): ?>
 
-
-           
-<?php endif; ?>
-            <!-- fine modal  !-->
-        <?php elseif ($ruolo === 'developer' || $ruolo === 'ict'): ?>
-
-          
-
-            <div class="stat-card clickable">
-              
+            <div class="stat-card clickable" onclick="window.location.href='<?= Url::to(['ticket/my-ticket']) ?>'">
                 <div class="stat-icon green"><i class="fas fa-ticket-alt"></i></div>
-                <div class="stat-info" onclick="window.location.href='<?= \yii\helpers\Url::to(['ticket/my-ticket']) ?>'">
+                <div class="stat-info">
                     <h3>Ticket</h3>
                     <p>Gestione ticket assegnati</p>
                 </div>
-
-                </div>
-  <div class="stat-card clickable">
-                 <div class="stat-icon green"><i class="fas fa-envelope"></i></div>
-                <div class="stat-info" onclick="window.location.href='<?= \yii\helpers\Url::to(['ticket/my-ticket']) ?>'">
-                    <h3>Messagistica</h3>
-                    <div>
             </div>
+
+            <div class="stat-card clickable" onclick="window.location.href='<?= Url::to(['ticket/my-ticket']) ?>'">
+                <div class="stat-icon blue"><i class="fas fa-envelope"></i></div>
+                <div class="stat-info">
+                    <h3>Messaggistica</h3>
+                    <p>Comunicazioni sui ticket</p>
                 </div>
+            </div>
 
         <?php elseif ($ruolo === 'amministratore'): ?>
-
-            <div class="stat-card" onclick="window.location.href='<?= \yii\helpers\Url::to(['ticket/my-ticket']) ?>'">
+            <?php $countTicket=Ticket::find()->count()?>
+            <div class="stat-card clickable" onclick="window.location.href='<?= Url::to(['admin/ticketing']) ?>'">
                 <div class="stat-icon blue"><i class="fas fa-ticket-alt"></i></div>
                 <div class="stat-info">
-                    <h3><?= $countTicket ?></h3>
+                    <h3><?= (int)$countTicket ?></h3>
                     <p>Ticket totali in sistema</p>
                 </div>
             </div>
@@ -112,28 +93,26 @@ defined('YII_ENV') or define('YII_ENV', 'prod');
     </div>
 
     <!-- AZIONI -->
-    <?php if ($ruolo === 'cliente' || $ruolo === 'amministratore'): ?>
+    <?php if (in_array($ruolo, ['cliente', 'amministratore'])): ?>
         <div class="actions-grid">
 
-            <div class="action-card" onclick="window.location.href='<?= \yii\helpers\Url::to(['ticket/new-ticket']) ?>'">
+            <div class="action-card" onclick="window.location.href='<?= Url::to(['ticket/new-ticket']) ?>'">
                 <h2>Nuova richiesta di assistenza</h2>
                 <p>Apri un ticket e ricevi supporto dal nostro team.</p>
                 <?= Html::a('Apri ticket', ['ticket/new-ticket'], ['class' => 'btn-primary']) ?>
             </div>
 
             <?php if ($ruolo === 'cliente'): ?>
-                <div class="action-card" onclick="window.location.href='<?= \yii\helpers\Url::to(['ticket/my-ticket']) ?>'">
+                <div class="action-card" onclick="window.location.href='<?= Url::to(['ticket/my-ticket']) ?>'">
                     <h2>I tuoi ticket</h2>
                     <p>Consulta lo stato delle richieste inviate.</p>
-                 
                 </div>
             <?php endif; ?>
 
             <?php if ($ruolo === 'amministratore'): ?>
-                <div class="action-card"  onclick="window.location.href='<?= \yii\helpers\Url::to(['admin/open']) ?>'">
+                <div class="action-card" onclick="window.location.href='<?= Url::to(['admin/open']) ?>'">
                     <h2>Ticket aperti</h2>
                     <p>Visualizza e gestisci i ticket in attesa.</p>
-                   
                 </div>
             <?php endif; ?>
 
@@ -142,9 +121,8 @@ defined('YII_ENV') or define('YII_ENV', 'prod');
 
 </div>
 
- <!-- inizio modal !-->
-
-            <div class="modal fade" id="ticketModal" tabindex="-1" aria-hidden="true">
+<?php if ($countTicket > 0 && isset($ultimoTicket)): ?>
+<div class="modal fade" id="ticketModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header">
@@ -153,15 +131,11 @@ defined('YII_ENV') or define('YII_ENV', 'prod');
       </div>
 
       <div class="modal-body">
-        <!-- Qui puoi caricare contenuto statico o dinamico -->
-         <p>Id: <strong><?= Html::encode($ultimoTicket->id) ?></strong></p>
-         <p>problema: <strong><?= Html::encode($ultimoTicket->problema) ?></strong></p>
+        <p>Id: <strong><?= Html::encode($ultimoTicket->id) ?></strong></p>
+        <p>Problema: <strong><?= Html::encode($ultimoTicket->problema) ?></strong></p>
         <p>Stato: <strong><?= Html::encode($ultimoTicket->stato) ?></strong></p>
         <p>Codice ticket: <strong><?= Html::encode($ultimoTicket->codice_ticket) ?></strong></p>
-         <p>Data di invio del ticket: <strong><?= Html::encode($ultimoTicket->data_invio) ?></strong></p>
-
-        <!-- Oppure puoi caricare via AJAX -->
-        <!-- <div id="modal-content"></div> -->
+        <p>Data invio: <strong><?= Html::encode($ultimoTicket->data_invio) ?></strong></p>
       </div>
 
       <div class="modal-footer">
@@ -170,12 +144,12 @@ defined('YII_ENV') or define('YII_ENV', 'prod');
     </div>
   </div>
 </div>
+<?php endif; ?>
 
-<!-- STILE AZIENDALE -->
 <style>
 .dashboard-container {
     max-width: 1200px;
-    margin: auto;
+    margin: 0 auto;
 }
 
 /* HERO */
@@ -189,10 +163,7 @@ defined('YII_ENV') or define('YII_ENV', 'prod');
     align-items: center;
     margin-bottom: 40px;
     box-shadow: 0 6px 22px rgba(0,0,0,.15);
-}
-
-.dashboard-container :hover{
-transform: translateY(-4px);
+    cursor: pointer;
 }
 
 .hero-left h1 {
@@ -203,15 +174,6 @@ transform: translateY(-4px);
 .hero-left p {
     margin-top: 8px;
     opacity: .9;
-}
-
-.hero-date {
-    margin-top: 12px;
-    display: inline-block;
-    padding: 6px 14px;
-    background: rgba(255,255,255,.2);
-    border-radius: 6px;
-    font-size: 14px;
 }
 
 .hero-right i {
@@ -235,16 +197,19 @@ transform: translateY(-4px);
     padding: 28px;
     border-radius: 12px;
     box-shadow: 0 6px 18px rgba(0,0,0,.08);
-    transition: .25s ease;
+    transition: transform .25s ease, box-shadow .25s ease;
 }
 
+.stat-card.clickable,
+.action-card {
+    cursor: pointer;
+}
+
+/* SOLO LE CARD SI ALZANO */
 .stat-card:hover,
 .action-card:hover {
     transform: translateY(-4px);
-}
-
-.stat-card.clickable {
-    cursor: pointer;
+    box-shadow: 0 8px 22px rgba(0,0,0,.18);
 }
 
 .stat-icon {
@@ -263,7 +228,7 @@ transform: translateY(-4px);
 .stat-icon.green { background: #2e8b57; }
 
 .stat-info h3 {
-    font-size: 26px;
+    font-size: 24px;
     font-weight: 700;
     margin: 0;
 }
@@ -274,21 +239,21 @@ transform: translateY(-4px);
 }
 
 /* BUTTONS */
-.btn-primary,
-.btn-success {
+.btn-primary {
     display: inline-block;
     padding: 10px 18px;
     border-radius: 8px;
     color: #fff;
     font-weight: 600;
     text-decoration: none;
+    background: #0b3c5d;
+    border: none;
 }
 
-.btn-primary { background: #0b3c5d; }
-.btn-primary:hover { background: #062f4f; }
-
-.btn-success { background: #2e8b57; }
-.btn-success:hover { background: #256f46; }
+.btn-primary:hover {
+    background: #062f4f;
+    color: #fff;
+}
 
 @media (max-width: 768px) {
     .hero-box {

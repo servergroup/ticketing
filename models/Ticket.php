@@ -66,9 +66,10 @@ class Ticket extends \yii\db\ActiveRecord
      *
      * @return \yii\db\ActiveQuery
      */
-    public function getCliente()
-    {
-        return $this->hasOne(Cliente::class, ['id' => 'id_cliente']);
-    }
+public function getCliente()
+{
+    return $this->hasOne(User::class, ['id' => 'id_cliente']);
+}
+
 
 }

@@ -15,7 +15,7 @@ class TempiTicket extends ActiveRecord
     public function rules()
     {
         return [
-            [['id_ticket', 'id_operatore', 'tempo_lavorazione', 'pause_effettuate'], 'integer'],
+            [['id_ticket', 'id_operatore', 'tempo_lavorazione', 'pause_effettuate','id_ticket'], 'integer'],
             [['ora_inizio', 'ora_fine', 'chiuso_il'], 'safe'],
             [['tempi_pause', 'ora_pause'], 'safe'],
             [['stato'], 'string', 'max' => 50],
@@ -269,4 +269,10 @@ class TempiTicket extends ActiveRecord
 
         return parent::beforeSave($insert);
     }
+
+    public function getTicket()
+{
+    return $this->hasOne(Ticket::class, ['id' => 'id_ticket']);
+}
+
 }

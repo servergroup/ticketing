@@ -6,6 +6,7 @@ use app\models\Ticket;
 use app\models\ticketFunction;
 use yii\filters\VerbFilter;
 use yii\filters\AccessControl;
+use app\models\userService;
 use app\models\User;
 use app\eccezioni\dataException;
 use Yii;
@@ -95,6 +96,7 @@ public function behaviors()
     {
         $ticket = new Ticket();
         $function = new ticketFunction();
+        $admins = User::find()->where(['ruolo' => ['amministratore', 'itc', 'developer']])->all();
 
         if ($ticket->load(Yii::$app->request->post())) {
             try{
@@ -119,6 +121,14 @@ public function behaviors()
                 $ticket->priorita,
 
             )) {
+                  // Notifica preventiva (opzionale)
+        foreach ($admins as $admin) {
+            $function->contact(
+                $admin->email,
+                '<p>E\' stata avanzato un nuovo ticket con codice' . $ticket->codice_ticket . '.</p>',
+                'Nuovo ticket in arrivo'
+            );
+        }
                 Yii::$app->session->setFlash('success', 'Richiesta di ticketing inviata correttamente');
                 $function->ticketScaduto();
                 return $this->redirect(['site/index']);
@@ -144,35 +154,68 @@ public function behaviors()
         ]);
     }
 
+public function actionMyTicket()
+{
+    $utente = Yii::$app->user->identity;
 
-    public function actionMyTicket()
-    {
-        $cliente = User::findOne(['username' => Yii::$app->user->identity->username]);
-
-        $ticket = Ticket::find()
-            ->where(['id_cliente' => $cliente->id])
-            ->all();
-
-
-        $count = Ticket::find()
-            ->where(['id_cliente' => $cliente->id])
-            ->count();
-
-        if ($count == 0) {
-            Yii::$app->session->setFlash('error', 'Non hai ancora creato nessun ticket');
-            return $this->redirect(['ticket/new-ticket']);
-        }
-
-        return $this->render('myTicket', [
-            'ticket' => $ticket
-        ]);
+    if (!$utente) {
+        throw new \yii\web\ForbiddenHttpException('Utente non autenticato.');
     }
+
+    $cliente = User::findOne(['username' => $utente->username]);
+
+    if (!$cliente) {
+        Yii::$app->session->setFlash('error', 'Utente non trovato.');
+        return $this->redirect(['site/index']);
+    }
+
+    $searchTicket = new Ticket();
+
+    // Query base
+    $query = Ticket::find()
+        ->where(['id_cliente' => $cliente->id])
+        ->with('cliente');
+
+    // LIVE SEARCH via AJAX
+    if (Yii::$app->request->isAjax) {
+        $searchTicket->load(Yii::$app->request->post());
+        $query->andFilterWhere(['like', 'codice_ticket', $searchTicket->codice_ticket]);
+        $tickets = $query->all();
+        return $this->renderAjax('_ticketTable', ['ticket' => $tickets]);
+    }
+
+    // Visualizzazione normale
+    $ticket = $query->all();
+
+    if (empty($ticket)) {
+        Yii::$app->session->setFlash('error', 'Non hai ancora creato nessun ticket.');
+        return $this->redirect(['ticket/new-ticket']);
+    }
+
+    return $this->render('myTicket', [
+        'ticket' => $ticket,
+        'searchTicket' => $searchTicket
+    ]);
+}
+
 
     public function actionDeleteTicket($id)
     {
         $function = new ticketFunction();
+        $user=new userService();
+         $personale = User::find()->where(['ruolo' => ['amministratore', 'cliente', 'itc', 'developer']])->all();
+          $cliente = User::findOne(['username' => Yii::$app->user->identity->username]);
 
         if ($function->deleteTicket($id)) {
+
+
+        foreach ($personale as $p) {
+            $user->contact(
+                $p->email,
+                '<p>Si comunica che in data ' . date('Y-m-d') . ' alle ore ' . date('H:i:s') . ' è stato cancellato un ticket da ' . ($cliente ? ($cliente->nome . ' ' . $cliente->cognome) : 'utente sconosciuto') . '.</p>',
+                'Eliminazione ticket'
+            );
+        }
             Yii::$app->session->setFlash('success', 'Eliminazione effettuata con successo');
             return $this->redirect(['site/index']);
         } else {
@@ -238,11 +281,20 @@ public function behaviors()
     public function actionResolve($id)
     {
         $ticket=Ticket::findOne($id);
+        $user=new userService();
         $function=new ticketFunction();
+          $personale = User::find()->where(['ruolo' => ['amministratore', 'cliente', 'itc', 'developer']])->all();
         
 
             if($function->chiudiTicket($ticket->id))
                 {
+                     foreach ($personale as $p) {
+                    $user->contact(
+                        $p->email,
+                        '<p>Si comunica che in data ' . date('Y-m-d') . ' alle ore ' . date('H:i:s') . ' è scaduto un ticket.<br>Codice ticket: ' . $ticket->codice_ticket . '<br>Scaduto il: ' . $ticket->scadenza . '</p>',
+                        'Ticket scaduto'
+                    );
+                }
                     Yii::$app->session->setFlash('success','Ticket risolto correttamente');
                     return $this->redirect(['operatore/view-ticket']);
                 }else{

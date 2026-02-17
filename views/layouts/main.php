@@ -68,7 +68,7 @@ header("Pragma: no-cache");
         $this->registerJs("
             Swal.fire({
                 icon: 'error',
-                timer:1000,
+                timer:6000,
                 title: " . json_encode($msg) . ",
                 confirmButtonText: 'OK'
             });
