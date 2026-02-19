@@ -59,7 +59,7 @@ class ActionColumn extends Column
      *
      * @see buttons
      */
-    public $template = '{view} {update} {delete}';
+    public $template = '{view} {update}';
     /**
      * @var array button rendering callbacks. The array keys are the button names (without curly brackets),
      * and the values are the corresponding button rendering callbacks. The callbacks should use the following

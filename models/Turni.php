@@ -12,6 +12,7 @@ use Yii;
  * @property string|null $entrata
  * @property string|null $uscita
  * @property string|null $pausa
+ * @property string|null $stato
  *
  * @property Personale $operatore
  */
@@ -33,15 +34,12 @@ class Turni extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['id_operatore', 'entrata', 'uscita', 'pausa','pausa'], 'default', 'value' => null],
+            [['id_operatore', 'entrata', 'uscita', 'pausa', 'stato'], 'default', 'value' => null],
             [['id_operatore'], 'integer'],
-            [['entrata', 'uscita', 'pausa','pausa'], 'safe'],
+            [['entrata', 'uscita', 'pausa'], 'safe'],
+            [['stato'], 'string', 'max' => 100],
             [['id_operatore'], 'unique'],
             [['id_operatore'], 'exist', 'skipOnError' => true, 'targetClass' => User::class, 'targetAttribute' => ['id_operatore' => 'id']],
-            [['entrata'], 'date', 'format' => 'php:Y-m-d', 'skipOnEmpty' => true],
-            [['uscita'], 'date', 'format' => 'php:Y-m-d', 'skipOnEmpty' => true],
-            [['pausa'], 'date', 'format' => 'php:Y-m-d', 'skipOnEmpty' => true]
-
         ];
     }
 
@@ -56,6 +54,7 @@ class Turni extends \yii\db\ActiveRecord
             'entrata' => 'Entrata',
             'uscita' => 'Uscita',
             'pausa' => 'Pausa',
+            'stato' => 'Stato',
         ];
     }
 

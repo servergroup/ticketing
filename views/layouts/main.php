@@ -56,7 +56,7 @@ header("Pragma: no-cache");
             Swal.fire({
                 icon: 'success',
                 title: " . json_encode($msg) . ",
-                timer:9999999999,
+                timer:2900,
                 confirmButtonText: 'OK'
             });
         ", View::POS_END);

@@ -2,423 +2,148 @@
 
 namespace app\controllers;
 
-use app\eccezioni\existUserException;
-use Yii;
-use Exception;
+use app\models\ticketFunction;
 use app\models\User;
 use app\models\userService;
-use app\models\LoginForm;
-use yii\filters\AccessControl;
-use yii\filters\VerbFilter;
 use app\models\Ticket;
 use app\models\Turni;
-use app\models\ticketFunction;
-use app\models\Reclami;
-use app\models\TempiTicket;
+use Yii;
+use yii\data\ActiveDataProvider;
+use yii\web\Controller;
+use yii\web\NotFoundHttpException;
+use yii\filters\VerbFilter;
 
-class AdminController extends \yii\web\Controller
+/**
+ * AdminController implements the CRUD actions for User model.
+ */
+class AdminController extends Controller
 {
-
-public function behaviors()
-{
-    return [
-        'access' => [
-            'class' => AccessControl::class,
-            'only' => ['ticketing','scadence','open','delegate','attese','approva','block-user','reset'],
-            'rules' => [
-                [
-                    'actions' => ['ticketing','scadence','open','delegate','attese','approva','block-user','reset'],
-                    'allow' => true,
-                    'roles' => ['@'], // deve essere loggato
-                    'matchCallback' => function ($rule, $action) {
-                        return Yii::$app->user->identity->ruolo === 'amministratore';
-                    }
-                ],
-            ],
-            'denyCallback' => function () {
-                Yii::$app->session->setFlash('error','Non sei autorizzato ad accedere a questa rotta, questa rotta e\' riservata agli amministratori del sistema');
-                return Yii::$app->response->redirect(['site/login']);
-            }
-        ],
-
-        'verbs' => [
-            'class' => VerbFilter::class,
-            'actions' => [],
-        ],
-    ];
-}
-
-
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
-    public function actions()
+    public function behaviors()
     {
-        return [
-            'error' => [
-                'class' => 'yii\web\ErrorAction',
-            ],
-            'captcha' => [
-                'class' => 'yii\captcha\CaptchaAction',
-                'fixedVerifyCode' => YII_ENV_TEST ? 'testme' : null,
-            ],
-        ];
+        return array_merge(
+            parent::behaviors(),
+            [
+                'verbs' => [
+                    'class' => VerbFilter::className(),
+                    'actions' => [
+                        'delete' => ['POST'],
+                    ],
+                ],
+            ]
+        );
     }
 
     /**
-     * Displays homepage.
+     * Lists all User models.
      *
      * @return string
      */
-
-
-public function actionTicketing()
-{
-    $filterType = Yii::$app->request->post('filterType');
-    $filterValue = Yii::$app->request->post('filterValue');
-
-    // Query base con join per azienda
-    $query = Ticket::find()
-        ->joinWith('cliente'); // necessario per filtrare cliente.azienda
-
-    // FILTRI AJAX
-    if (Yii::$app->request->isAjax) {
-
-        if ($filterType && $filterValue) {
-
-            switch ($filterType) {
-
-                case 'azienda':
-                    $query->andWhere(['like', 'cliente.azienda', $filterValue]);
-                    break;
-
-                case 'stato':
-                    $query->andWhere(['like', 'ticket.stato', $filterValue]);
-                    break;
-
-                case 'problema':
-                    $query->andWhere(['like', 'ticket.problema', $filterValue]);
-                    break;
-
-                case 'id_cliente':
-                    $query->andWhere(['ticket.id_cliente' => $filterValue]);
-                    break;
-
-                case 'codice_ticket':
-                default:
-                    $query->andWhere(['like', 'ticket.codice_ticket', $filterValue]);
-                    break;
-            }
-        }
-
-        $tickets = $query->all();
-        return $this->renderPartial('_ticketTable', ['ticket' => $tickets]);
-    }
-
-    // VISUALIZZAZIONE NORMALE
-    $ticket = $query->all();
-
-    return $this->render('allTicketing', [
-        'ticket' => $ticket
-    ]);
-}
-
-
-
-
-public function actionScaduto()
-{
-    $searchTicket = new Ticket(); // Modello per il form
-    $query = Ticket::find()->where(['stato' => 'scaduto']);
-
-    if ($searchTicket->load(Yii::$app->request->post()) && $searchTicket->codice_ticket) {
-        $query->andWhere(['codice_ticket' => $searchTicket->codice_ticket]);
-    }
-
-    $ticket = $query->all();
-
-    if (empty($ticket)) {
-        Yii::$app->session->setFlash('error', 'Al momento non è stato rilevato alcun ticket scaduto');
-        return $this->redirect(['site/index']);
-    }
-
-    return $this->render('allTicketScadence', [
-        'ticket' => $ticket,
-        'searchTicket' => $searchTicket
-    ]);
-}
-
-public function actionChiuso()
-{
-    $searchTicket = new Ticket(); // Modello per il form
-    $query = Ticket::find()->where(['stato' => 'chiuso']);
-
-    if ($searchTicket->load(Yii::$app->request->post()) && $searchTicket->codice_ticket) {
-        $query->andWhere(['codice_ticket' => $searchTicket->codice_ticket]);
-    }
-
-    $ticket = $query->all();
-
-    if (empty($ticket)) {
-        Yii::$app->session->setFlash('error', 'Al momento non è stato rilevato alcun ticket chiuso');
-        return $this->redirect(['site/index']);
-    }
-
-    return $this->render('allTicketScadence', [
-        'ticket' => $ticket,
-        'searchTicket' => $searchTicket
-    ]);
-}
-
-public function actionOpen()
-{
-    $searchTicket = new Ticket();
-    $query = Ticket::find()
-        ->where(['stato' => 'aperto'])
-        ->with('cliente'); // ottimizzazione
-
-    // 🔎 LIVE SEARCH AJAX
-    if (Yii::$app->request->isAjax) {
-
-        $searchTicket->load(Yii::$app->request->post());
-
-        $searchValue = trim($searchTicket->codice_ticket);
-
-        $query->andFilterWhere([
-            'like',
-            'codice_ticket',
-            $searchValue
+    public function actionIndex()
+    {
+        $dataProvider = new ActiveDataProvider([
+            'query' => Turni::find(),
+            /*
+            'pagination' => [
+                'pageSize' => 50
+            ],
+            'sort' => [
+                'defaultOrder' => [
+                    'id' => SORT_DESC,
+                ]
+            ],
+            */
         ]);
 
-        $tickets = $query->all();
-
-        return $this->renderAjax('_ticketTable', [
-            'ticket' => $tickets
+        return $this->render('index', [
+            'dataProvider' => $dataProvider,
         ]);
     }
 
-    // 🟢 Caricamento normale pagina
-    $ticket = $query->all();
+    /**
+     * Displays a single User model.
+     * @param int $id
+     * @return string
+     * @throws NotFoundHttpException if the model cannot be found
+     */
+ 
 
-    return $this->render('allTicketOpen', [
-        'ticket' => $ticket,
-        'searchTicket' => $searchTicket
-    ]);
-}
+    /**
+     * Creates a new User model.
+     * If creation is successful, the browser will be redirected to the 'view' page.
+     * @return string|\yii\web\Response
+     */
 
 
-
-    public function actionDelegate($codice_ticket, $ambito)
+    /**
+     * Updates an existing User model.
+     * If update is successful, the browser will be redirected to the 'view' page.
+     * @param int $id
+     * @return string|\yii\web\Response
+     * @throws NotFoundHttpException if the model cannot be found
+     */
+    public function actionUpdate($id)
     {
-        // Classe che contiene la logica di assegnazione dei ticket
-        $function = new ticketFunction();
-    
-
-        if($function->random_num($ambito)==null){
-            Yii::$app->session->setFlash('error','Nessun operatore è al momento disponibile per la risoluzione del ticket');
-            return $this->redirect(['ticketing']);
+        $model = Turni::findOne(['id_operatore'=>$this->findModel($id)]);
+        if ($this->request->isPost && $model->load($this->request->post()) && $model->save()) {
+            Yii::$app->session->setFlash('success','Turno dell \' operatore aggiornato correttamente');
+            return $this->redirect(['index']);
         }
-        // Controlla se il ticket è già assegnato
-        if ($function->verifyDelegate($codice_ticket)) {
-            Yii::$app->session->setFlash('info', 'Il ticket è gia\' in lavorazione');
-            return $this->redirect(['ticketing']);
+
+        return $this->render('update', [
+            'model' => $model,
+        ]);
+    }
+
+       public function actionView($id)
+    {
+        $model=Turni::findOne(['id_operatore'=>$id]);
+        return $this->render('view', [
+            'model' => $model,
+        ]);
+    }
+    /**
+     * Deletes an existing User model.
+     * If deletion is successful, the browser will be redirected to the 'index' page.
+     * @param int $id
+     * @return \yii\web\Response
+     * @throws NotFoundHttpException if the model cannot be found
+     */
+ 
+
+    /**
+     * Finds the User model based on its primary key value.
+     * If the model is not found, a 404 HTTP exception will be thrown.
+     * @param int $id
+     * @return User the loaded model
+     * @throws NotFoundHttpException if the model cannot be found
+     */
+    protected function findModel($id)
+    {
+        if (($model = User::findOne(['id' => $id])) !== null) {
+            return $model;
         }
 
-        // Prova ad assegnare il ticket
-        if ($function->assegnaTicket($codice_ticket, $ambito)) {
-            Yii::$app->session->setFlash('success', 'Ticket assegnato correttamente');
-            return $this->redirect(['ticketing']);
-        } else {
-            // Se l'assegnazione fallisce
-            Yii::$app->session->setFlash('error', 'Ticket non  assegnato a nessuno');
-            return $this->redirect(['ticketing']);
-        }
+        throw new NotFoundHttpException('The requested page does not exist.');
     }
 
-  public function actionAttese()
-{
-    // usa $users (plurale) per evitare shadowing della variabile
-    $users = User::find()->where(['approvazione' => false])->all();
-    $function = new UserService();
-     $newUser=new User();
-      foreach ($users as $u) {
-     $user=User::findOne($u->id);
-      }
-
-
-    return $this->render('userInAttesa', ['users' => $users]);
-}
-
-
-
-    public function actionApprova($username)
+    protected function actionDelegate($id)
     {
-           $users=User::findOne(['approvazione'=>false]);
-        $function=new userService();
+        $ticket=Ticket::findOne($id);
 
-        if($users->ruolo==='personale')
-            {
-                Yii::$app->session->setFlash('error','Prima di approvare la registrazione dell \'operatore si prega di definire prima un ruolo');
-             return $this->redirect(['attese']);
-            }
-        if($function->approva($username))
-            {
-                Yii::$app->session->setFlash('success','Approvazione effettuata correttamente ');
-                return $this->redirect(['site/index']);
-            }else{
-                Yii::$app->session->setFlash('error','Approvazione non  effettuata correttamente ');
-                 return $this->redirect(['site/index']);
-            }
-    }
-
-    public function actionBlockUser()
-    {
-         $user=User::find()->where(['blocco'=>true])->all();
-
-        return $this->render('userBloccato',['user'=>$user]);
-    }
-
-    public function actionReset($username){
-        $function=new userService();
-
-        if($function->resetLogin($username))
-            {
-                Yii::$app->session->setFlash('success','Reset effettuato correttamente');
-                return $this->redirect(['site/index']);
-            }else{
-                Yii::$app->session->setFlash('error','Reset non  effettuato correttamente');
-                return $this->redirect(['site/index']);
-            }
-    }
-
-    public function actionScadence($codice_ticket)
-    {
-        $ticket=new Ticket();
+        
         $function=new ticketFunction();
 
-        if($ticket->load(Yii::$app->request->post()))
+        if($function->assegnaTicket($ticket->codice_ticket,$ticket->ambito))
             {
-                if($function->insertScadence($codice_ticket,$ticket->scadenza))
-                    {
-                        Yii::$app->session->setFlash('success','Scadenza impostata correttamente');
-                        $this->redirect(['ticketing']);
-                    }else{
-                        Yii::$app->session->setFlash('error','Scandenza non impostata correttamente');
-                    $this->redirect(['ticketing']);
-                        }
+                Yii::$app->session->session->setFlash('success','Ticket assegnato correttamente');
+                return $this->refresh();
+                }else{
+                Yii::$app->session->setFlash('error','Ticket non assegnato correttamente');
+                return $this->refresh();
             }
 
-
-
-            
     }
-
-    public function actionGestioneDipendenti()
-{
-    $dipendenti = User::find()
-        ->where(['ruolo' => ['developer', 'ict']])
-        ->all();
-
-    return $this->render('viewOperatori', ['dipendenti' => $dipendenti]);
 }
-
-
-public function actionModifyTurni($id_operatore){
-   $function=new userService();
-   $personale=User::findOne($id_operatore);
-$model=new Turni();
-
-
-if($model->load(Yii::$app->request->post()))
-        {
-            if($function->modifyTurni($id_operatore,$model->entrata,$model->uscita,$model->pausa))
-                {
-                    Yii::$app->session->setFlash('success','Turni definiti correttamente');
-                    return $this->redirect(['gestione-dipendenti']);
-                }else{
-                     Yii::$app->session->setFlash('error','Errore nella definizione dei turni');
-                      return $this->redirect(['gestione-dipendenti']);
-                }
-
-        }
-        return $this->render('Turni',['model'=>$model,'personale'=>$personale]);
-}
-
-
-public function actionModifyRuolo($id)
-{
-    $user = User::findOne($id);
-    $function = new UserService();
-
-    if ($user->load(Yii::$app->request->post())) {
-
-        $ruolo = $user->ruolo;
-
-        if ($function->assegnaRuolo($id, $ruolo)) {
-            Yii::$app->session->setFlash('success', "Ruolo assegnato correttamente");
-        } else {
-            Yii::$app->session->setFlash('error', "Errore nell'assegnamento del ruolo");
-        }
-
-        return $this->redirect(['admin/attese']);
-    }
-
-    Yii::$app->session->setFlash('error', "Dati non validi");
-    return $this->redirect(['admin/attese']);
-}
-
-public function actionUpdateRuolo($id)
-{
-
- $user = User::findOne($id);
-    $function = new UserService();
-
-     if($function->resetRuolo($id)){
-        Yii::$app->session->setFlash('success','Abbiamo resettato il ruolo per permetterle di effettuare la modifica');
-        return $this->redirect(['attese']);
-     }
-        
-        
-}
-
-public function actionVerifyRuolo()
-{
-    $user=User::find()->all();
-
-    return $this->render('viewRuoli',['user'=>$user]);
-    }
-
-public function actionTempi()
-{
-    $searchTempi = new TempiTicket();
-
-    // Se arriva una ricerca via POST
-    if ($searchTempi->load(Yii::$app->request->post())) {
-
-        $query = TempiTicket::find()
-            ->joinWith('ticket') // relazione con Ticket
-            ->andFilterWhere(['like', 'ticket.id', $searchTempi->id_ticket]);
-
-        $tempi = $query->all();
-
-        // Se è una richiesta AJAX (live search), ritorni solo la tabella
-        if (Yii::$app->request->isAjax) {
-            return $this->renderPartial('_tempiTable', [
-                'tempi' => $tempi
-            ]);
-        }
-
-    } else {
-        // Nessuna ricerca → mostra tutto
-        $tempi = TempiTicket::find()->all();
-    }
-
-    return $this->render('TimeTicket', [
-        'tempi' => $tempi,
-        'searchTempi' => $searchTempi
-    ]);
-}
-
-
-
-    }

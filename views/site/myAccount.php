@@ -12,8 +12,8 @@ use yii\widgets\ActiveForm;
     margin: 0 auto;
     padding: 25px;
     background: #ffffff;
-    border-radius: 12px;
-    box-shadow: 0 4px 18px rgba(0,0,0,0.08);
+    border-radius: 18px;
+    box-shadow: 0 8px 28px rgba(0,0,0,0.12);
     font-family: "Inter", Arial, sans-serif;
 }
 
@@ -30,20 +30,25 @@ use yii\widgets\ActiveForm;
     display: inline-block;
 }
 
+/* IMMAGINE PROFILO */
 .profile-pic {
-    width: 140px;
-    height: 140px;
+    width: 150px;
+    height: 150px;
     border-radius: 50%;
     object-fit: cover;
-    border: 3px solid #e5e7eb;
+    border: 4px solid #e5e7eb;
     background: #f3f4f6;
-    transition: 0.3s;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.15);
+    transition: 0.3s ease;
 }
 
+/* HOVER */
 .profile-pic-label:hover .profile-pic {
-    opacity: 0.7;
+    transform: scale(1.03);
+    opacity: 0.85;
 }
 
+/* OVERLAY "MODIFICA" */
 .edit-overlay {
     position: absolute;
     bottom: 0;
@@ -51,34 +56,41 @@ use yii\widgets\ActiveForm;
     background: rgba(0,0,0,0.55);
     color: white;
     text-align: center;
-    padding: 6px 0;
+    padding: 8px 0;
     border-radius: 0 0 50% 50%;
     font-size: 14px;
     opacity: 0;
-    transition: 0.3s;
+    transition: 0.3s ease;
 }
 
 .profile-pic-label:hover .edit-overlay {
     opacity: 1;
 }
 
-/* TITOLI */
-h1, p {
-    text-align: center;
+/* PLACEHOLDER QUANDO NON C’È IMMAGINE */
+.profile-pic.placeholder {
+    background: linear-gradient(135deg, #d1d5db, #9ca3af);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 48px;
+    color: white;
+    font-weight: bold;
+    text-transform: uppercase;
 }
 
 /* CARD */
 .ticket-card {
     border: 1px solid #e5e7eb;
-    border-radius: 10px;
+    border-radius: 16px;
     background: #ffffff;
     transition: all .2s ease;
     margin-top: 20px;
 }
 
 .ticket-card:hover {
-    box-shadow: 0 4px 16px rgba(0,0,0,0.08);
-    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+    transform: translateY(-3px);
 }
 
 /* TABELLA */
@@ -96,6 +108,8 @@ h1, p {
 .btn-primary {
     margin: 6px 0;
     width: 100%;
+    border-radius: 10px;
+    padding: 10px;
 }
 
 /* RESPONSIVE */
@@ -105,10 +119,11 @@ h1, p {
         box-shadow: none;
     }
     .profile-pic {
-        width: 110px;
-        height: 110px;
+        width: 120px;
+        height: 120px;
     }
 }
+
 </style>
 
 <div class="account-container">

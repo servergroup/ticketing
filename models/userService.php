@@ -489,16 +489,6 @@ public function modifyImmagine($user, UploadedFile $file) {
         return $user->save();
     }
 
- public function visualizzato($codice_ticket)
-{
-    // trova il reclamo specifico
-    $reclamo = Mail::findOne(['codice_ticket' => $codice_ticket]);
-    
-    if (!$reclamo) return false; // se non esiste, ritorna false
-
-    $reclamo->visualizzato = true; // imposta il campo
-    return $reclamo->save();       // salva il modello
-}
 
      // =========================
     // AVANZA UNA RIAPERTURA

@@ -1,11 +1,12 @@
-<aside class="main-sidebar sidebar-dark-primary elevation-4">
+<aside class="main-sidebar sidebar-dark-primary elevation-4" style="border-radius:10px !important">
 
+<div class="zona-logo" style="background-color:white;">
     <!-- Brand Logo -->
     <a href="#" class="brand-link">
         
         <span class="brand-text font-weight-light" oncontextmenu="return false;"><img src="<?= Yii::getAlias('@web/img/taglio_dataseed.svg') ?>" width="190px"></span>
     </a> 
-
+</div>
     <div class="sidebar">
 
         <!-- User panel -->
@@ -16,7 +17,7 @@
             ?>
             
             <div class="image">
-                <img src='<?=Yii::getAlias('@web/img/upload/'.Yii::$app->user->identity->immagine)?>' class="img-circle elevation-2" alt="User Image">
+                <img id='logo_utente' src='<?=Yii::getAlias('@web/img/upload/'.Yii::$app->user->identity->immagine)?>' class="img-circle elevation-2" alt="User Image">
                      
             </div>
             <?php
@@ -61,9 +62,10 @@
                         'icon' => 'fas fa-ticket-alt',
                         'items' => [
                             ['label' => 'Tutti i ticket', 'icon' => 'fas fa-list', 'url' => ['tickets/index']],
-                            ['label' => 'Ticket aperti', 'icon' => 'fas fa-exclamation-circle', 'url' => ['admin/open']],
-                            ['label' => 'Ticket chiusi', 'icon' => 'fas fa-check', 'url' => ['admin/chiuso']],
-                            ['label' => 'Nuovo ticket', 'icon' => 'fas fa-plus', 'url' => ['ticket/new-ticket']],
+                            ['label' => 'Ticket aperti', 'icon' => 'fas fa-exclamation-circle', 'url' => ['tickets/open']],
+                            ['label' => 'Ticket chiusi', 'icon' => 'fas fa-check', 'url' => ['tickets/close']],
+                             ['label' => 'Ticket scaduti', 'icon' => 'fas fa-check', 'url' => ['tickets/scadence']],
+                            ['label' => 'Nuovo ticket', 'icon' => 'fas fa-plus', 'url' => ['tickets/create']],
                            
                         ]
                     ],
@@ -167,3 +169,58 @@
         </nav>
     </div>
 </aside>
+
+<style>
+/* Arrotonda e migliora l'immagine utente */
+#logo_utente,
+.user-panel .image img {
+    width: 48px;
+    height: 48px;
+    object-fit: cover;
+    border-radius: 50% !important;
+    border: 2px solid rgba(255,255,255,0.3);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+}
+
+/* Arrotonda leggermente il logo */
+.brand-link img {
+    border-radius: 12px;
+    transition: transform 0.2s ease;
+}
+
+.brand-link img:hover {
+    transform: scale(1.03);
+}
+
+/* Migliora il pannello utente */
+.user-panel {
+    background: rgba(255,255,255,0.05);
+    border-radius: 10px;
+    padding: 10px 12px;
+}
+
+/* Migliora i link del menu */
+.sidebar .nav-link {
+    border-radius: 8px;
+    margin: 2px 0;
+    transition: background 0.2s ease, padding-left 0.2s ease;
+}
+
+.sidebar .nav-link:hover {
+    background: rgba(255,255,255,0.15);
+    padding-left: 18px;
+}
+
+/* Migliora le icone */
+.sidebar .nav-icon {
+    margin-right: 10px;
+}
+
+/* Migliora la sezione brand */
+.brand-link {
+    padding: 18px 15px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+</style>

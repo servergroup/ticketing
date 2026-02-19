@@ -1,9 +1,10 @@
 <?php
 
 namespace app\controllers;
-
+use Yii;
 use app\models\Ticket;
 use app\models\ticketfunction;
+use app\models\userService;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
@@ -67,18 +68,26 @@ class TicketsController extends Controller
      */
     public function actionCreate()
     {
-        $model = new Ticket();
-
+        $ticket= new Ticket();
+        $function=new ticketfunction();
         if ($this->request->isPost) {
-            if ($model->load($this->request->post()) && $model->save()) {
-                return $this->redirect(['view', 'id' => $model->id]);
+            if ($ticket->load($this->request->post()))  {
+               if($function->newTicket(
+                 $ticket->problema,
+                $ticket->ambito,
+                $ticket->scadenza,
+                $ticket->priorita,
+               )){
+                Yii::$app->session->setFlash('success','Ticket creatro');
             }
         } else {
-            $model->loadDefaultValues();
+            $ticket->loadDefaultValues();
         }
 
-        return $this->render('create', [
-            'model' => $model,
+      
+    }
+      return $this->render('newTicket', [
+            'ticket' => $ticket,
         ]);
     }
 
@@ -91,14 +100,18 @@ class TicketsController extends Controller
      */
     public function actionUpdate($id)
     {
-        $model = $this->findModel($id);
-
-        if ($this->request->isPost && $model->load($this->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->id]);
+        $ticket = $this->findModel($id);
+        $function=new ticketfunction();
+        if ($this->request->isPost && $ticket->load($this->request->post()))
+             {
+                if($function->modificaTicket($ticket->codice_ticket,$ticket->problema,$ticket->priorita,$ticket->ambito,$ticket->scadenza)){
+                    Yii::$app->session->setFlash('success','Modifica effettuata correttamente');
+                }
+            return $this->redirect(['modifyTicket', 'ticket' => $ticket]);
         }
 
-        return $this->render('update', [
-            'model' => $model,
+        return $this->render('modifyTicket', [
+            'ticket' => $ticket,
         ]);
     }
 
@@ -131,4 +144,76 @@ class TicketsController extends Controller
 
         throw new NotFoundHttpException('The requested page does not exist.');
     }
+
+    public function actionMyTicket()
+{
+    $searchModel = new ticketfunction();
+
+    // Passiamo i queryParams come sempre
+    $params = Yii::$app->request->queryParams;
+
+    // Aggiungiamo il filtro per l'utente loggato
+    $params['ticketfunction']['id_cliente'] = Yii::$app->user->identity->id;
+
+    $dataProvider = $searchModel->search($params);
+
+    return $this->render('index', [
+        'searchModel' => $searchModel,
+        'dataProvider' => $dataProvider,
+    ]);
+}
+
+    public function actionOpen()
+{
+    $searchModel = new ticketfunction();
+
+    // Passiamo i queryParams come sempre
+    $params = Yii::$app->request->queryParams;
+
+    // Aggiungiamo il filtro per l'utente loggato
+    $params['ticketfunction']['stato'] ='aperto';
+
+    $dataProvider = $searchModel->search($params);
+
+    return $this->render('index', [
+        'searchModel' => $searchModel,
+        'dataProvider' => $dataProvider,
+    ]);
+}
+
+    public function actionClose()
+{
+    $searchModel = new ticketfunction();
+
+    // Passiamo i queryParams come sempre
+    $params = Yii::$app->request->queryParams;
+
+    // Aggiungiamo il filtro per l'utente loggato
+    $params['ticketfunction']['stato'] ='chiuso';
+
+    $dataProvider = $searchModel->search($params);
+
+    return $this->render('index', [
+        'searchModel' => $searchModel,
+        'dataProvider' => $dataProvider,
+    ]);
+}
+
+    public function actionScadence()
+{
+    $searchModel = new ticketfunction();
+
+    // Passiamo i queryParams come sempre
+    $params = Yii::$app->request->queryParams;
+
+    // Aggiungiamo il filtro per l'utente loggato
+    $params['ticketfunction']['stato'] ='scaduto';
+
+    $dataProvider = $searchModel->search($params);
+
+    return $this->render('index', [
+        'searchModel' => $searchModel,
+        'dataProvider' => $dataProvider,
+    ]);
+}
 }

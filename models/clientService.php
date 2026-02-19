@@ -4,12 +4,12 @@ namespace app\models;
 use Yii;
 use yii\base\Model;
 use app\models\ticketFunction;
-use app\models\reclami;
+use app\models\Mail;
 class clientService extends Model
 {
     public function reclami($problema,$codice_ticket)
     {
-       $reclami=new Reclami();
+       $reclami=new Mail();
        $cliente=User::findOne(['username'=>Yii::$app->user->identity->username]);
        $function=new ticketFunction();
        $reclami->problema=$problema;
